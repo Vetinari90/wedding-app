@@ -1,19 +1,48 @@
 import RsvpForm from "./RsvpForm";
-import { weddingConfig, formatDate } from "@/lib/config";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-wedding-cream">
-      <section className="relative overflow-hidden bg-gradient-to-b from-wedding-sage/15 to-transparent py-20 text-center">
-        <p className="font-serif italic text-wedding-ink/70">Svatba</p>
-        <h1 className="mt-2 font-serif text-5xl sm:text-6xl text-wedding-ink">
-          {weddingConfig.couple}
-        </h1>
-        <p className="mt-4 text-lg text-wedding-ink/80">
-          {formatDate(weddingConfig.date)} &middot; {weddingConfig.venue}
-        </p>
+      {/* Pozvánka — hero obrázek */}
+      <section className="px-4 pt-8 pb-4 sm:pt-14 flex justify-center">
+        <img
+          src="/pozvanka.png"
+          alt="Svatební pozvánka Jitka & Martin"
+          className="w-full max-w-[560px] h-auto rounded-lg shadow-[0_8px_40px_-8px_rgba(61,56,51,0.25)]"
+        />
       </section>
 
+      {/* Informační text */}
+      <section className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+        <div className="space-y-5 text-[17px] leading-[1.75] text-wedding-ink">
+          <p>
+            Naše svatba se uskuteční v <strong>Resortu Počepice</strong>{" "}
+            (Počepice 22). Obřad proběhne <strong>15. srpna ve 14:00</strong>.
+          </p>
+
+          <p>
+            Budeme ale moc rádi, pokud s námi strávíte celý víkend v klidné
+            a příjemné atmosféře <strong>od 14. do 16. srpna</strong>. Máme
+            zarezervovaný celý dům jen pro nás, takže si to společně můžeme
+            opravdu užít.
+          </p>
+
+          <p>
+            Věcné dary nejsou potřeba, vše už máme. Největší radost nám udělá,
+            když přispějete na naši svatební cestu nebo na společné bydlení.
+          </p>
+
+          <div className="rounded-lg border border-wedding-sage/30 bg-white/50 p-5">
+            <p className="font-medium text-wedding-ink">Dress code</p>
+            <p className="mt-2">
+              Společenské oblečení ve stylu svatební garden party. Prosíme
+              dámy, aby zvolily jinou barvu než bílou — ta bude patřit nevěstě.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Formulář */}
       <section className="mx-auto max-w-2xl px-4 pb-24">
         <div className="rounded-xl bg-white/80 p-6 sm:p-10 shadow-sm">
           <h2 className="font-serif text-3xl text-wedding-ink text-center">
