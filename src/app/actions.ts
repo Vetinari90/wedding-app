@@ -5,6 +5,8 @@ import { rsvpSchema } from "@/lib/schema";
 import { insertRsvp, listNormalizedNames, normalizeName } from "@/lib/db";
 import { sendConfirmationEmail } from "@/lib/email";
 
+const MSG_NAME_ALREADY_GUEST =
+  "Pod tímto jménem už byla odeslána registrace.";
 const MSG_NAME_AS_COMPANION =
   "Tento host je již uveden jako doprovod jiného hosta. Pokud jste to vy, neregistrujte se znovu.";
 const MSG_COMPANION_AS_GUEST =
@@ -22,6 +24,9 @@ export async function checkDuplicate(
   const { guests, companions } = await listNormalizedNames();
 
   if (field === "name") {
+    if (guests.includes(n)) {
+      return { conflict: true, message: MSG_NAME_ALREADY_GUEST };
+    }
     if (companions.includes(n)) {
       return { conflict: true, message: MSG_NAME_AS_COMPANION };
     }
@@ -69,7 +74,9 @@ export async function submitRsvp(
   const dupErrors: Record<string, string> = {};
   const { guests, companions } = await listNormalizedNames();
   const nName = normalizeName(d.name);
-  if (nName.length >= 2 && companions.includes(nName)) {
+  if (nName.length >= 2 && guests.includes(nName)) {
+    dupErrors.name = MSG_NAME_ALREADY_GUEST;
+  } else if (nName.length >= 2 && companions.includes(nName)) {
     dupErrors.name = MSG_NAME_AS_COMPANION;
   }
   if (attending === 1 && d.companion_name) {
