@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { rsvpSchema } from "@/lib/schema";
-import { getDb } from "@/lib/db";
+import { insertRsvp } from "@/lib/db";
 
 export type FormState = {
   ok: boolean;
@@ -36,26 +36,19 @@ export async function submitRsvp(
   const d = parsed.data;
   const attending = d.attending === "yes" ? 1 : 0;
 
-  const db = getDb();
-  db.prepare(
-    `INSERT INTO rsvp (
-      name, email, phone, attending,
-      adults_count, children_count, companion_name,
-      dietary_notes, accommodation_needed, transport_notes, message
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    d.name,
-    d.email || null,
-    d.phone || null,
+  await insertRsvp({
+    name: d.name,
+    email: d.email || null,
+    phone: d.phone || null,
     attending,
-    attending === 1 ? d.adults_count : 0,
-    attending === 1 ? d.children_count : 0,
-    d.companion_name || null,
-    d.dietary_notes || null,
-    d.accommodation_needed ? 1 : 0,
-    d.transport_notes || null,
-    d.message || null,
-  );
+    adults_count: attending === 1 ? d.adults_count : 0,
+    children_count: attending === 1 ? d.children_count : 0,
+    companion_name: d.companion_name || null,
+    dietary_notes: d.dietary_notes || null,
+    accommodation_needed: d.accommodation_needed ? 1 : 0,
+    transport_notes: d.transport_notes || null,
+    message: d.message || null,
+  });
 
   redirect("/dekujeme");
 }

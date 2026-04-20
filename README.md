@@ -1,6 +1,8 @@
 # Wedding RSVP
 
-Jednoduchá svatební registrace hostů — Next.js 15 (App Router), TypeScript, Tailwind, SQLite.
+Jednoduchá svatební registrace hostů — Next.js 15 (App Router), TypeScript, Tailwind, libSQL / Turso (SQLite-kompatibilní).
+
+Lokální vývoj běží proti souborové SQLite DB (`./data/wedding.db`), produkce proti Turso.
 
 ## Funkce
 
@@ -42,17 +44,15 @@ SQLite soubor se vytvoří automaticky v `./data/wedding.db`.
 | `WEDDING_COUPLE`  | Jména novomanželů                   |
 | `WEDDING_DATE`    | Datum svatby (ISO: `2026-06-20`)    |
 | `WEDDING_VENUE`   | Místo konání                        |
+| `TURSO_DATABASE_URL` | (volitelné) URL Turso DB — pro produkci |
+| `TURSO_AUTH_TOKEN`   | (volitelné) Auth token Turso DB |
 
-## Produkce
+## Produkce (Vercel + Turso)
 
-```bash
-npm run build
-npm run start
-```
-
-Na Vercelu SQLite **nefunguje** (storage je read-only). Pro produkci zvaž:
-- Hostování na VPS (DigitalOcean, Hetzner) se Node.js
-- Migrace na Supabase/Turso/Postgres (snadno nahradit `src/lib/db.ts`)
+1. **Vytvoř Turso DB** — <https://turso.tech> → Create Database → zkopíruj URL a token
+2. **Nahraj projekt na Vercel** — připojit GitHub repo, framework Next.js detekuje sám
+3. **V Environment Variables** nastav: `ADMIN_PASSWORD`, `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `WEDDING_COUPLE`, `WEDDING_DATE`, `WEDDING_VENUE`
+4. Deploy
 
 ## Struktura
 

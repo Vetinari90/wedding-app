@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb, type RsvpRow } from "@/lib/db";
+import { listRsvp, type RsvpRow } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -32,9 +32,7 @@ export async function GET() {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const rows = getDb()
-    .prepare("SELECT * FROM rsvp ORDER BY created_at DESC")
-    .all() as RsvpRow[];
+  const rows = await listRsvp();
 
   const header = COLUMNS.map(([, label]) => csvEscape(label)).join(";");
   const body = rows

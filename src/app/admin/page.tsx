@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getDb, type RsvpRow } from "@/lib/db";
+import { listRsvp } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { logoutAction } from "./login/actions";
 
@@ -10,10 +10,7 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const db = getDb();
-  const rows = db
-    .prepare("SELECT * FROM rsvp ORDER BY created_at DESC")
-    .all() as RsvpRow[];
+  const rows = await listRsvp();
 
   const attending = rows.filter((r) => r.attending === 1);
   const notAttending = rows.filter((r) => r.attending === 0);

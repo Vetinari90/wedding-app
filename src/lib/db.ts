@@ -1,23 +1,37 @@
-import { DatabaseSync, type StatementSync } from "node:sqlite";
+import { createClient, type Client, type InValue } from "@libsql/client";
 import path from "path";
 import fs from "fs";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const DB_PATH = path.join(DATA_DIR, "wedding.db");
-
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-let _db: DatabaseSync | null = null;
+let _client: Client | null = null;
+let _initialized = false;
 
-export function getDb(): DatabaseSync {
-  if (_db) return _db;
+function resolveUrl(): string {
+  const url = process.env.TURSO_DATABASE_URL;
+  if (url && url.length > 0) return url;
+  // Local fallback — file DB in ./data/wedding.db
+  const local = path.join(DATA_DIR, "wedding.db").replace(/\\/g, "/");
+  return `file:${local}`;
+}
 
-  const db = new DatabaseSync(DB_PATH);
-  db.exec("PRAGMA journal_mode = WAL;");
+function getClient(): Client {
+  if (_client) return _client;
+  const url = resolveUrl();
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  _client = createClient({
+    url,
+    authToken: authToken && authToken.length > 0 ? authToken : undefined,
+  });
+  return _client;
+}
 
-  db.exec(`
+async function ensureSchema(c: Client): Promise<void> {
+  if (_initialized) return;
+  await c.execute(`
     CREATE TABLE IF NOT EXISTS rsvp (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -32,13 +46,18 @@ export function getDb(): DatabaseSync {
       accommodation_needed INTEGER NOT NULL DEFAULT 0,
       transport_notes TEXT,
       message TEXT
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_rsvp_created_at ON rsvp(created_at DESC);
+    )
   `);
+  await c.execute(
+    `CREATE INDEX IF NOT EXISTS idx_rsvp_created_at ON rsvp(created_at DESC)`,
+  );
+  _initialized = true;
+}
 
-  _db = db;
-  return db;
+export async function getDb(): Promise<Client> {
+  const c = getClient();
+  await ensureSchema(c);
+  return c;
 }
 
 export type RsvpRow = {
@@ -57,4 +76,47 @@ export type RsvpRow = {
   message: string | null;
 };
 
-export type { StatementSync };
+export async function insertRsvp(values: {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  attending: 0 | 1;
+  adults_count: number;
+  children_count: number;
+  companion_name: string | null;
+  dietary_notes: string | null;
+  accommodation_needed: 0 | 1;
+  transport_notes: string | null;
+  message: string | null;
+}): Promise<void> {
+  const db = await getDb();
+  const args: InValue[] = [
+    values.name,
+    values.email,
+    values.phone,
+    values.attending,
+    values.adults_count,
+    values.children_count,
+    values.companion_name,
+    values.dietary_notes,
+    values.accommodation_needed,
+    values.transport_notes,
+    values.message,
+  ];
+  await db.execute({
+    sql: `INSERT INTO rsvp (
+      name, email, phone, attending,
+      adults_count, children_count, companion_name,
+      dietary_notes, accommodation_needed, transport_notes, message
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args,
+  });
+}
+
+export async function listRsvp(): Promise<RsvpRow[]> {
+  const db = await getDb();
+  const res = await db.execute(
+    "SELECT * FROM rsvp ORDER BY created_at DESC",
+  );
+  return res.rows as unknown as RsvpRow[];
+}

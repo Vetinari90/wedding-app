@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["node:sqlite"],
+  serverExternalPackages: ["@libsql/client"],
 };
 
 export default nextConfig;
