@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { rsvpSchema } from "@/lib/schema";
 import { insertRsvp } from "@/lib/db";
+import { sendConfirmationEmail } from "@/lib/email";
 
 export type FormState = {
   ok: boolean;
@@ -38,7 +39,7 @@ export async function submitRsvp(
 
   await insertRsvp({
     name: d.name,
-    email: d.email || null,
+    email: d.email,
     phone: d.phone || null,
     attending,
     adults_count: attending === 1 ? d.adults_count : 0,
@@ -49,6 +50,14 @@ export async function submitRsvp(
     transport_notes: d.transport_notes || null,
     message: d.message || null,
   });
+
+  // Best-effort — nikdy neblokovat potvrzení submitu kvůli selhání emailu.
+  // Jen pokud host přijde (attending === 1).
+  if (attending === 1) {
+    sendConfirmationEmail(d.email, d.name).catch((e) => {
+      console.error("[submitRsvp] sendConfirmationEmail failed:", e);
+    });
+  }
 
   redirect("/dekujeme");
 }

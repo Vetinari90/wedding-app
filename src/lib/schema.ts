@@ -3,7 +3,11 @@ import { z } from "zod";
 export const rsvpSchema = z
   .object({
     name: z.string().trim().min(2, "Zadejte prosím své jméno"),
-    email: z.string().trim().email("Neplatný email").or(z.literal("")).optional(),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Email je povinný — pošleme na něj potvrzení")
+      .email("Neplatný email"),
     phone: z.string().trim().max(40).optional(),
     attending: z.enum(["yes", "no"]),
     adults_count: z.coerce.number().int().min(1).max(10).default(1),

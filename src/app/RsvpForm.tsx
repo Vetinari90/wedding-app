@@ -27,10 +27,15 @@ export default function RsvpForm() {
       </Field>
 
       <div className="grid sm:grid-cols-2 gap-6">
-        <Field label="Email" error={err("email")}>
+        <Field
+          label="Email *"
+          error={err("email")}
+          hint="Pošleme vám potvrzení s detaily"
+        >
           <input
             name="email"
             type="email"
+            required
             defaultValue={val("email")}
             className={inputCls}
             placeholder="jan@priklad.cz"
