@@ -2,19 +2,19 @@ import { createClient, type Client, type InValue } from "@libsql/client";
 import path from "path";
 import fs from "fs";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
 let _client: Client | null = null;
 let _initialized = false;
 
 function resolveUrl(): string {
   const url = process.env.TURSO_DATABASE_URL;
   if (url && url.length > 0) return url;
-  // Local fallback — file DB in ./data/wedding.db
-  const local = path.join(DATA_DIR, "wedding.db").replace(/\\/g, "/");
+  // Local fallback — file DB in ./data/wedding.db.
+  // Only runs when no Turso URL is configured (i.e., local dev).
+  const dataDir = path.join(process.cwd(), "data");
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  const local = path.join(dataDir, "wedding.db").replace(/\\/g, "/");
   return `file:${local}`;
 }
 
