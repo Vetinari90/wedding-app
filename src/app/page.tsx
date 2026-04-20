@@ -27,10 +27,13 @@ export default function Home() {
             opravdu užít.
           </p>
 
-          <p>
-            Věcné dary nejsou potřeba, vše už máme. Největší radost nám udělá,
-            když přispějete na naši svatební cestu nebo na společné bydlení.
-          </p>
+          <div className="rounded-lg border border-wedding-sage/30 bg-white/50 p-5">
+            <p className="font-medium text-wedding-ink">Dary</p>
+            <p className="mt-2">
+              Věcné dary nejsou potřeba, vše už máme. Největší radost nám udělá,
+              když přispějete na naši svatební cestu nebo na společné bydlení.
+            </p>
+          </div>
 
           <div className="rounded-lg border border-wedding-sage/30 bg-white/50 p-5">
             <p className="font-medium text-wedding-ink">Dress code</p>
@@ -39,6 +42,11 @@ export default function Home() {
               dámy, aby zvolily jinou barvu než bílou — ta bude patřit nevěstě.
             </p>
           </div>
+
+          <p className="text-center italic text-wedding-ink/80 pt-2">
+            Prosíme, potvrďte účast ve formuláři, abychom věděli, s kolika
+            lidmi počítat.
+          </p>
         </div>
       </section>
 
