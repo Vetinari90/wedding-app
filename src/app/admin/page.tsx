@@ -1,0 +1,150 @@
+import { redirect } from "next/navigation";
+import { getDb, type RsvpRow } from "@/lib/db";
+import { isAdmin } from "@/lib/auth";
+import { logoutAction } from "./login/actions";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminPage() {
+  if (!(await isAdmin())) {
+    redirect("/admin/login");
+  }
+
+  const db = getDb();
+  const rows = db
+    .prepare("SELECT * FROM rsvp ORDER BY created_at DESC")
+    .all() as RsvpRow[];
+
+  const attending = rows.filter((r) => r.attending === 1);
+  const notAttending = rows.filter((r) => r.attending === 0);
+  const totalPeople = attending.reduce(
+    (sum, r) => sum + r.adults_count + r.children_count,
+    0,
+  );
+  const accommodation = attending.filter((r) => r.accommodation_needed === 1).length;
+  const withDiet = attending.filter((r) => r.dietary_notes).length;
+
+  return (
+    <main className="min-h-screen bg-wedding-cream">
+      <header className="border-b border-wedding-ink/10 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <h1 className="font-serif text-2xl">Admin — RSVP přehled</h1>
+          <div className="flex items-center gap-3">
+            <a
+              href="/api/export"
+              className="rounded-md bg-wedding-sage px-4 py-2 text-sm text-white hover:bg-wedding-sage/90"
+            >
+              Export CSV
+            </a>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="text-sm text-wedding-ink/70 hover:underline"
+              >
+                Odhlásit
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <section className="mx-auto max-w-6xl px-4 py-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Stat label="Odpovědí celkem" value={rows.length} />
+          <Stat label="Přijde osob" value={totalPeople} accent />
+          <Stat label="Omluveno" value={notAttending.length} />
+          <Stat label="Chce ubytování" value={accommodation} />
+        </div>
+        <div className="mt-2 text-sm text-wedding-ink/60">
+          Dietní požadavky: {withDiet} &middot; Potvrzených odpovědí: {attending.length}
+        </div>
+
+        <div className="mt-8 overflow-x-auto rounded-xl bg-white shadow-sm">
+          <table className="w-full text-sm">
+            <thead className="bg-wedding-sage/10 text-left text-wedding-ink">
+              <tr>
+                <Th>Datum</Th>
+                <Th>Jméno</Th>
+                <Th>Stav</Th>
+                <Th>Dospělí</Th>
+                <Th>Děti</Th>
+                <Th>Doprovod</Th>
+                <Th>Dieta</Th>
+                <Th>Ubytování</Th>
+                <Th>Kontakt</Th>
+                <Th>Vzkaz</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={10} className="px-4 py-10 text-center text-wedding-ink/60">
+                    Zatím žádné odpovědi.
+                  </td>
+                </tr>
+              )}
+              {rows.map((r) => (
+                <tr key={r.id} className="border-t border-wedding-ink/5 align-top">
+                  <Td>{new Date(r.created_at + "Z").toLocaleString("cs-CZ")}</Td>
+                  <Td className="font-medium">{r.name}</Td>
+                  <Td>
+                    {r.attending ? (
+                      <span className="rounded-full bg-wedding-sage/20 px-2 py-0.5 text-xs text-wedding-sage">
+                        Přijde
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-wedding-rose/20 px-2 py-0.5 text-xs text-wedding-rose">
+                        Nepřijde
+                      </span>
+                    )}
+                  </Td>
+                  <Td>{r.attending ? r.adults_count : "—"}</Td>
+                  <Td>{r.attending ? r.children_count : "—"}</Td>
+                  <Td>{r.companion_name || "—"}</Td>
+                  <Td className="max-w-[200px] whitespace-pre-wrap">
+                    {r.dietary_notes || "—"}
+                  </Td>
+                  <Td>{r.accommodation_needed ? "Ano" : "—"}</Td>
+                  <Td className="text-xs">
+                    {r.email && <div>{r.email}</div>}
+                    {r.phone && <div>{r.phone}</div>}
+                    {!r.email && !r.phone && "—"}
+                  </Td>
+                  <Td className="max-w-[260px] whitespace-pre-wrap text-wedding-ink/80">
+                    {r.message || "—"}
+                  </Td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+  return (
+    <div
+      className={`rounded-xl p-4 shadow-sm ${
+        accent ? "bg-wedding-sage text-white" : "bg-white text-wedding-ink"
+      }`}
+    >
+      <div className="text-xs uppercase tracking-wide opacity-80">{label}</div>
+      <div className="mt-1 text-3xl font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return <th className="px-3 py-2 font-medium">{children}</th>;
+}
+function Td({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <td className={`px-3 py-2 ${className}`}>{children}</td>;
+}
