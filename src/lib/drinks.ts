@@ -8,7 +8,7 @@ export const DRINK_OPTIONS = [
   { value: "pivo", label: "Pivo" },
   { value: "vino", label: "Víno" },
   { value: "tvrdy", label: "Rum / Whisky / Gin" },
-  { value: "nealko", label: "Nealko drinky" },
+  { value: "nealko", label: "Nealko" },
 ] as const;
 
 export type DrinkValue = (typeof DRINK_OPTIONS)[number]["value"];
