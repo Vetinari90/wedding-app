@@ -1,35 +1,81 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { submitRsvp, type FormState } from "./actions";
+import { submitRsvp, checkDuplicate, type FormState } from "./actions";
 
 const initial: FormState = { ok: false };
+
+type FieldName = "name" | "companion_name";
 
 export default function RsvpForm() {
   const [state, formAction, pending] = useActionState(submitRsvp, initial);
   const [attending, setAttending] = useState<"yes" | "no">(
     (state.values?.attending as "yes" | "no") ?? "yes",
   );
+  const [conflicts, setConflicts] = useState<{
+    name?: string;
+    companion_name?: string;
+  }>({});
+  const [checking, setChecking] = useState<{
+    name?: boolean;
+    companion_name?: boolean;
+  }>({});
 
-  const err = (k: string) => state.errors?.[k];
+  const serverErr = (k: string) => state.errors?.[k];
   const val = (k: string) => state.values?.[k] ?? "";
+
+  async function handleBlur(field: FieldName, value: string) {
+    const v = value.trim();
+    if (v.length < 2) {
+      setConflicts((c) => ({ ...c, [field]: undefined }));
+      return;
+    }
+    setChecking((c) => ({ ...c, [field]: true }));
+    try {
+      const res = await checkDuplicate(field, v);
+      setConflicts((c) => ({
+        ...c,
+        [field]: res.conflict ? (res.message ?? "Duplikát.") : undefined,
+      }));
+    } catch {
+      setConflicts((c) => ({ ...c, [field]: undefined }));
+    } finally {
+      setChecking((c) => ({ ...c, [field]: false }));
+    }
+  }
+
+  function clearConflict(field: FieldName) {
+    setConflicts((c) =>
+      c[field] === undefined ? c : { ...c, [field]: undefined },
+    );
+  }
+
+  const hasConflict = Boolean(conflicts.name || conflicts.companion_name);
+  const isChecking = Boolean(checking.name || checking.companion_name);
+  const submitDisabled = pending || hasConflict || isChecking;
+
+  // Klient-side konflikt má přednost před server-side chybou ze stejného pole.
+  const errName = conflicts.name ?? serverErr("name");
+  const errCompanion = conflicts.companion_name ?? serverErr("companion_name");
 
   return (
     <form action={formAction} className="space-y-6">
-      <Field label="Jméno a příjmení *" error={err("name")}>
+      <Field label="Jméno a příjmení *" error={errName}>
         <input
           name="name"
           defaultValue={val("name")}
           required
           className={inputCls}
           placeholder="Jan Novák"
+          onChange={() => clearConflict("name")}
+          onBlur={(e) => handleBlur("name", e.target.value)}
         />
       </Field>
 
       <div className="grid sm:grid-cols-2 gap-6">
         <Field
           label="Email *"
-          error={err("email")}
+          error={serverErr("email")}
           hint="Pošleme vám potvrzení s detaily"
         >
           <input
@@ -41,7 +87,7 @@ export default function RsvpForm() {
             placeholder="jan@priklad.cz"
           />
         </Field>
-        <Field label="Telefon" error={err("phone")}>
+        <Field label="Telefon" error={serverErr("phone")}>
           <input
             name="phone"
             defaultValue={val("phone")}
@@ -65,7 +111,11 @@ export default function RsvpForm() {
             name="attending"
             value="no"
             checked={attending === "no"}
-            onChange={() => setAttending("no")}
+            onChange={() => {
+              setAttending("no");
+              // zrušit případný konflikt doprovodu, pokud host nepřijde
+              clearConflict("companion_name");
+            }}
             label="Bohužel nemohu"
           />
         </div>
@@ -74,7 +124,7 @@ export default function RsvpForm() {
       {attending === "yes" && (
         <div className="space-y-6 rounded-lg border border-wedding-sage/30 bg-white/60 p-5">
           <div className="grid sm:grid-cols-2 gap-6">
-            <Field label="Počet dospělých" error={err("adults_count")}>
+            <Field label="Počet dospělých" error={serverErr("adults_count")}>
               <input
                 name="adults_count"
                 type="number"
@@ -84,7 +134,7 @@ export default function RsvpForm() {
                 className={inputCls}
               />
             </Field>
-            <Field label="Počet dětí" error={err("children_count")}>
+            <Field label="Počet dětí" error={serverErr("children_count")}>
               <input
                 name="children_count"
                 type="number"
@@ -96,18 +146,20 @@ export default function RsvpForm() {
             </Field>
           </div>
 
-          <Field label="Jméno doprovodu (pokud je)" error={err("companion_name")}>
+          <Field label="Jméno doprovodu (pokud je)" error={errCompanion}>
             <input
               name="companion_name"
               defaultValue={val("companion_name")}
               className={inputCls}
               placeholder="Jana Nováková"
+              onChange={() => clearConflict("companion_name")}
+              onBlur={(e) => handleBlur("companion_name", e.target.value)}
             />
           </Field>
 
           <Field
             label="Dietní preference / alergie"
-            error={err("dietary_notes")}
+            error={serverErr("dietary_notes")}
             hint="Vegetariánské, veganské, bezlepkové, alergie..."
           >
             <textarea
@@ -130,7 +182,7 @@ export default function RsvpForm() {
             </label>
           </div>
 
-          <Field label="Doprava (poznámka)" error={err("transport_notes")}>
+          <Field label="Doprava (poznámka)" error={serverErr("transport_notes")}>
             <input
               name="transport_notes"
               defaultValue={val("transport_notes")}
@@ -141,7 +193,7 @@ export default function RsvpForm() {
         </div>
       )}
 
-      <Field label="Vzkaz pro novomanžele" error={err("message")}>
+      <Field label="Vzkaz pro novomanžele" error={serverErr("message")}>
         <textarea
           name="message"
           rows={3}
@@ -152,10 +204,16 @@ export default function RsvpForm() {
 
       <button
         type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-wedding-sage px-6 py-3 text-white font-medium hover:bg-wedding-sage/90 transition disabled:opacity-50"
+        disabled={submitDisabled}
+        className="w-full rounded-md bg-wedding-sage px-6 py-3 text-white font-medium hover:bg-wedding-sage/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {pending ? "Odesílám..." : "Odeslat potvrzení"}
+        {pending
+          ? "Odesílám..."
+          : isChecking
+            ? "Ověřuji..."
+            : hasConflict
+              ? "Opravte prosím chyby výše"
+              : "Odeslat potvrzení"}
       </button>
     </form>
   );

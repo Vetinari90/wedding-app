@@ -120,3 +120,37 @@ export async function listRsvp(): Promise<RsvpRow[]> {
   );
   return res.rows as unknown as RsvpRow[];
 }
+
+export function normalizeName(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    // eslint-disable-next-line no-misleading-character-class
+    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Return all existing names and companion names (normalized).
+ * Small dataset (wedding) — loading everything is fine.
+ */
+export async function listNormalizedNames(): Promise<{
+  guests: string[];
+  companions: string[];
+}> {
+  const db = await getDb();
+  const res = await db.execute(
+    "SELECT name, companion_name FROM rsvp",
+  );
+  const guests: string[] = [];
+  const companions: string[] = [];
+  for (const row of res.rows as unknown as Array<{
+    name: string;
+    companion_name: string | null;
+  }>) {
+    if (row.name) guests.push(normalizeName(row.name));
+    if (row.companion_name) companions.push(normalizeName(row.companion_name));
+  }
+  return { guests, companions };
+}

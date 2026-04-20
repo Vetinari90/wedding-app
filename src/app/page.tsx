@@ -57,7 +57,7 @@ export default function Home() {
             Potvrzení účasti
           </h2>
           <p className="mt-2 text-center text-wedding-ink/70">
-            Prosíme, dejte nám vědět do <strong>31. května 2026</strong>.
+            Prosíme, dejte nám vědět do <strong>15. května 2026</strong>.
           </p>
 
           <div className="mt-8">

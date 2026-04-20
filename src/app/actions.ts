@@ -2,8 +2,36 @@
 
 import { redirect } from "next/navigation";
 import { rsvpSchema } from "@/lib/schema";
-import { insertRsvp } from "@/lib/db";
+import { insertRsvp, listNormalizedNames, normalizeName } from "@/lib/db";
 import { sendConfirmationEmail } from "@/lib/email";
+
+const MSG_NAME_AS_COMPANION =
+  "Tento host je již uveden jako doprovod jiného hosta. Pokud jste to vy, neregistrujte se znovu.";
+const MSG_COMPANION_AS_GUEST =
+  "Tato osoba se již sama zaregistrovala jako host.";
+
+export type DuplicateResult = { conflict: boolean; message: string | null };
+
+export async function checkDuplicate(
+  field: "name" | "companion_name",
+  value: string,
+): Promise<DuplicateResult> {
+  const n = normalizeName(value);
+  if (n.length < 2) return { conflict: false, message: null };
+
+  const { guests, companions } = await listNormalizedNames();
+
+  if (field === "name") {
+    if (companions.includes(n)) {
+      return { conflict: true, message: MSG_NAME_AS_COMPANION };
+    }
+  } else {
+    if (guests.includes(n)) {
+      return { conflict: true, message: MSG_COMPANION_AS_GUEST };
+    }
+  }
+  return { conflict: false, message: null };
+}
 
 export type FormState = {
   ok: boolean;
@@ -36,6 +64,34 @@ export async function submitRsvp(
 
   const d = parsed.data;
   const attending = d.attending === "yes" ? 1 : 0;
+
+  // Safety net: re-check duplicates on server (client can be bypassed).
+  const dupErrors: Record<string, string> = {};
+  const { guests, companions } = await listNormalizedNames();
+  const nName = normalizeName(d.name);
+  if (nName.length >= 2 && companions.includes(nName)) {
+    dupErrors.name = MSG_NAME_AS_COMPANION;
+  }
+  if (attending === 1 && d.companion_name) {
+    const nComp = normalizeName(d.companion_name);
+    if (nComp.length >= 2 && guests.includes(nComp)) {
+      dupErrors.companion_name = MSG_COMPANION_AS_GUEST;
+    }
+    // Also block if companion name equals main name
+    if (nComp.length >= 2 && nComp === nName) {
+      dupErrors.companion_name =
+        "Doprovod nemůže mít stejné jméno jako hlavní host.";
+    }
+  }
+  if (Object.keys(dupErrors).length > 0) {
+    return {
+      ok: false,
+      errors: dupErrors,
+      values: Object.fromEntries(
+        Object.entries(raw).map(([k, v]) => [k, String(v)]),
+      ),
+    };
+  }
 
   await insertRsvp({
     name: d.name,
