@@ -54,9 +54,11 @@ export async function submitRsvp(
   // Best-effort — nikdy neblokovat potvrzení submitu kvůli selhání emailu.
   // Jen pokud host přijde (attending === 1).
   if (attending === 1) {
-    sendConfirmationEmail(d.email, d.name).catch((e) => {
+    try {
+      await sendConfirmationEmail(d.email, d.name);
+    } catch (e) {
       console.error("[submitRsvp] sendConfirmationEmail failed:", e);
-    });
+    }
   }
 
   redirect("/dekujeme");
