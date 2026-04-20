@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ALLOWED_DRINKS } from "./drinks";
 
 export const rsvpSchema = z
   .object({
@@ -27,3 +28,18 @@ export const rsvpSchema = z
   );
 
 export type RsvpInput = z.infer<typeof rsvpSchema>;
+
+/**
+ * Extract selected drink values from FormData. HTML posts each checked
+ * checkbox as a separate entry with the same name. Anything unknown is
+ * dropped — prevents smuggling arbitrary values into the DB.
+ */
+export function parseDrinks(formData: FormData): string[] {
+  const raw = formData.getAll("drinks");
+  const out: string[] = [];
+  for (const v of raw) {
+    const s = typeof v === "string" ? v : "";
+    if (ALLOWED_DRINKS.has(s) && !out.includes(s)) out.push(s);
+  }
+  return out;
+}

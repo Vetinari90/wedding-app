@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { submitRsvp, checkDuplicate, type FormState } from "./actions";
+import { DRINK_OPTIONS } from "@/lib/drinks";
 
 const initial: FormState = { ok: false };
 
@@ -157,18 +158,40 @@ export default function RsvpForm() {
             />
           </Field>
 
-          <Field
-            label="Dietní preference / alergie"
-            error={serverErr("dietary_notes")}
-            hint="Vegetariánské, veganské, bezlepkové, alergie..."
-          >
-            <textarea
-              name="dietary_notes"
-              rows={2}
-              defaultValue={val("dietary_notes")}
-              className={inputCls}
-            />
-          </Field>
+          <div className="grid sm:grid-cols-2 gap-6">
+            <Field
+              label="Dietní preference / alergie"
+              error={serverErr("dietary_notes")}
+              hint="Vegetariánské, veganské, bezlepkové, alergie..."
+            >
+              <textarea
+                name="dietary_notes"
+                rows={4}
+                defaultValue={val("dietary_notes")}
+                className={inputCls}
+              />
+            </Field>
+
+            <div className="block space-y-2">
+              <span className="text-sm font-medium">Co budu pít</span>
+              <div className="grid grid-cols-1 gap-2">
+                {DRINK_OPTIONS.map((d) => (
+                  <label
+                    key={d.value}
+                    className="flex items-center gap-3 cursor-pointer rounded-md border border-wedding-ink/15 bg-white px-3 py-2 hover:border-wedding-sage/60 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      name="drinks"
+                      value={d.value}
+                      className="h-4 w-4 accent-wedding-sage"
+                    />
+                    <span>{d.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-2">
             <label className="flex items-center gap-3 cursor-pointer">

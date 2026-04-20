@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { listRsvp } from "@/lib/db";
+import { listRsvp, DRINK_OPTIONS, drinkLabel } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { logoutAction } from "./login/actions";
 
@@ -20,6 +20,16 @@ export default async function AdminPage() {
   );
   const accommodation = attending.filter((r) => r.accommodation_needed === 1).length;
   const withDiet = attending.filter((r) => r.dietary_notes).length;
+
+  // Drink stats — count across attending guests (multi-select).
+  const drinkCounts: Record<string, number> = {};
+  for (const d of DRINK_OPTIONS) drinkCounts[d.value] = 0;
+  for (const r of attending) {
+    if (!r.drinks) continue;
+    for (const v of r.drinks.split(",")) {
+      if (v in drinkCounts) drinkCounts[v]++;
+    }
+  }
 
   return (
     <main className="min-h-screen bg-wedding-cream">
@@ -56,6 +66,22 @@ export default async function AdminPage() {
           Dietní požadavky: {withDiet} &middot; Potvrzených odpovědí: {attending.length}
         </div>
 
+        <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
+          <div className="text-xs uppercase tracking-wide text-wedding-ink/60">
+            Preference nápojů
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {DRINK_OPTIONS.map((d) => (
+              <span
+                key={d.value}
+                className="rounded-full bg-wedding-sage/10 px-3 py-1 text-sm"
+              >
+                {d.label}: <strong>{drinkCounts[d.value]}</strong>
+              </span>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-8 overflow-x-auto rounded-xl bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-wedding-sage/10 text-left text-wedding-ink">
@@ -67,6 +93,7 @@ export default async function AdminPage() {
                 <Th>Děti</Th>
                 <Th>Doprovod</Th>
                 <Th>Dieta</Th>
+                <Th>Nápoje</Th>
                 <Th>Ubytování</Th>
                 <Th>Kontakt</Th>
                 <Th>Vzkaz</Th>
@@ -75,7 +102,7 @@ export default async function AdminPage() {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-wedding-ink/60">
+                  <td colSpan={11} className="px-4 py-10 text-center text-wedding-ink/60">
                     Zatím žádné odpovědi.
                   </td>
                 </tr>
@@ -100,6 +127,14 @@ export default async function AdminPage() {
                   <Td>{r.companion_name || "—"}</Td>
                   <Td className="max-w-[200px] whitespace-pre-wrap">
                     {r.dietary_notes || "—"}
+                  </Td>
+                  <Td className="max-w-[180px]">
+                    {r.drinks
+                      ? r.drinks
+                          .split(",")
+                          .map((v) => drinkLabel(v))
+                          .join(", ")
+                      : "—"}
                   </Td>
                   <Td>{r.accommodation_needed ? "Ano" : "—"}</Td>
                   <Td className="text-xs">

@@ -51,6 +51,16 @@ async function ensureSchema(c: Client): Promise<void> {
   await c.execute(
     `CREATE INDEX IF NOT EXISTS idx_rsvp_created_at ON rsvp(created_at DESC)`,
   );
+
+  // Lightweight migration: add drinks column if missing (existing DBs).
+  const info = await c.execute(`PRAGMA table_info(rsvp)`);
+  const columns = new Set(
+    (info.rows as unknown as Array<{ name: string }>).map((r) => r.name),
+  );
+  if (!columns.has("drinks")) {
+    await c.execute(`ALTER TABLE rsvp ADD COLUMN drinks TEXT`);
+  }
+
   _initialized = true;
 }
 
@@ -74,7 +84,13 @@ export type RsvpRow = {
   accommodation_needed: 0 | 1;
   transport_notes: string | null;
   message: string | null;
+  drinks: string | null; // CSV: "pivo,vino,..."
 };
+
+// Re-export drink helpers from the client-safe module so existing
+// server-side imports (admin, export, actions) keep working.
+export { DRINK_OPTIONS, ALLOWED_DRINKS, drinkLabel } from "./drinks";
+export type { DrinkValue } from "./drinks";
 
 export async function insertRsvp(values: {
   name: string;
@@ -88,6 +104,7 @@ export async function insertRsvp(values: {
   accommodation_needed: 0 | 1;
   transport_notes: string | null;
   message: string | null;
+  drinks: string | null;
 }): Promise<void> {
   const db = await getDb();
   const args: InValue[] = [
@@ -102,13 +119,14 @@ export async function insertRsvp(values: {
     values.accommodation_needed,
     values.transport_notes,
     values.message,
+    values.drinks,
   ];
   await db.execute({
     sql: `INSERT INTO rsvp (
       name, email, phone, attending,
       adults_count, children_count, companion_name,
-      dietary_notes, accommodation_needed, transport_notes, message
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      dietary_notes, accommodation_needed, transport_notes, message, drinks
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args,
   });
 }

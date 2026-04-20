@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { rsvpSchema } from "@/lib/schema";
+import { rsvpSchema, parseDrinks } from "@/lib/schema";
 import { insertRsvp, listNormalizedNames, normalizeName } from "@/lib/db";
 import { sendConfirmationEmail } from "@/lib/email";
 
@@ -100,6 +100,8 @@ export async function submitRsvp(
     };
   }
 
+  const drinks = attending === 1 ? parseDrinks(formData) : [];
+
   await insertRsvp({
     name: d.name,
     email: d.email,
@@ -112,6 +114,7 @@ export async function submitRsvp(
     accommodation_needed: d.accommodation_needed ? 1 : 0,
     transport_notes: d.transport_notes || null,
     message: d.message || null,
+    drinks: drinks.length > 0 ? drinks.join(",") : null,
   });
 
   // Best-effort — nikdy neblokovat potvrzení submitu kvůli selhání emailu.
