@@ -13,15 +13,24 @@ export function buildConfirmationEmail(guestName: string): {
   const headerImg = `${PUBLIC_BASE_URL}/header.png`;
   const footerImg = `${PUBLIC_BASE_URL}/patka.png`;
 
+  const intro = `Milý/á ${escapeHtml(guestName)},`;
+  const thanks = `děkujeme za potvrzení účasti na naší svatbě! 💍`;
+
   const paragraphs = [
-    `Milý/á ${escapeHtml(guestName)},`,
-    `děkujeme za potvrzení účasti na naší svatbě! 💍`,
-    `Naše svatba se uskuteční v <strong>Resortu Počepice</strong> (Počepice 22). Obřad proběhne <strong>15. srpna ve 14:00</strong>.`,
-    `Budeme ale moc rádi, pokud s námi strávíte celý víkend v klidné a příjemné atmosféře <strong>od 14. do 16. srpna</strong>. Máme zarezervovaný celý dům jen pro nás, takže si to společně můžeme opravdu užít.`,
-    `Věcné dary nejsou potřeba, vše už máme. Největší radost nám udělá, když přispějete na naši svatební cestu nebo na společné bydlení.`,
-    `<strong>Dress code:</strong> společenské oblečení ve stylu svatební garden party. Prosíme dámy, aby zvolily jinou barvu než bílou – ta bude patřit nevěstě. 👰`,
-    `Těšíme se na vás!`,
-    `— ${escapeHtml(weddingConfig.couple)}`,
+    `Pro ty z vás, kteří s námi plánují strávit celý svatební víkend, je možné přijet už v pátek od 10:00. Můžete si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
+    `Parkování je možné přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Ostatní prosíme, aby parkovali rozumně po vesnici a místo tak šetřili.`,
+    `Do Počepic se lze pohodlně dostat i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
+    `Ubytování rádi zajistíme všem, kdo o něj budou mít zájem. Počítejte prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+  ];
+
+  const bullets = [
+    `<strong>Místo:</strong> Resort Počepice (Počepice 22)`,
+    `<strong>Obřad:</strong> 15. srpna ve 14:00`,
+    `<strong>Možnost přijet na celý víkend:</strong> 14.–16. srpna`,
+    `<strong>Ubytování:</strong> rezervovaný celý dům pouze pro nás`,
+    `<strong>Dary:</strong> věcné nejsou potřeba (vše máme), potěší příspěvek na svatební cestu nebo bydlení`,
+    `<strong>Dress code:</strong> společenský styl „svatební garden party“`,
+    `Dámy prosíme nevolit bílou (vyhrazena pro nevěstu)`,
   ];
 
   const html = `<!doctype html>
@@ -42,13 +51,34 @@ export function buildConfirmationEmail(guestName: string): {
               </td>
             </tr>
             <tr>
-              <td style="padding:28px 28px 16px;">
+              <td style="padding:28px 28px 8px;">
+                <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#3d3833;">${intro}</p>
+                <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#3d3833;">${thanks}</p>
                 ${paragraphs
                   .map(
                     (p) =>
                       `<p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#3d3833;">${p}</p>`,
                   )
                   .join("\n")}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 8px;">
+                  ${bullets
+                    .map(
+                      (b) => `<tr>
+                    <td style="border:1px solid #e5dccf;border-radius:8px;background-color:#faf7f2;padding:12px 16px;font-size:15px;line-height:1.5;color:#3d3833;">${b}</td>
+                  </tr>`,
+                    )
+                    .join("\n")}
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 28px 24px;">
+                <p style="margin:0 0 4px 0;font-size:16px;line-height:1.6;color:#3d3833;">Těšíme se na vás!</p>
+                <p style="margin:0;font-size:16px;line-height:1.6;color:#3d3833;">— ${escapeHtml(weddingConfig.couple)}</p>
               </td>
             </tr>
             <tr>
@@ -73,15 +103,21 @@ export function buildConfirmationEmail(guestName: string): {
     ``,
     `děkujeme za potvrzení účasti na naší svatbě!`,
     ``,
-    `Naše svatba se uskuteční v Resortu Počepice (Počepice 22).`,
-    `Obřad proběhne 15. srpna ve 14:00.`,
+    `Pro ty z vás, kteří s námi plánují strávit celý svatební víkend, je možné přijet už v pátek od 10:00. Můžete si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
     ``,
-    `Budeme ale moc rádi, pokud s námi strávíte celý víkend v klidné a příjemné atmosféře od 14. do 16. srpna. Máme zarezervovaný celý dům jen pro nás, takže si to společně můžeme opravdu užít.`,
+    `Parkování je možné přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Ostatní prosíme, aby parkovali rozumně po vesnici a místo tak šetřili.`,
     ``,
-    `Věcné dary nejsou potřeba, vše už máme. Největší radost nám udělá, když přispějete na naši svatební cestu nebo na společné bydlení.`,
+    `Do Počepic se lze pohodlně dostat i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
     ``,
-    `Dress code: společenské oblečení ve stylu svatební garden party.`,
-    `Prosíme dámy, aby zvolily jinou barvu než bílou – ta bude patřit nevěstě.`,
+    `Ubytování rádi zajistíme všem, kdo o něj budou mít zájem. Počítejte prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+    ``,
+    `- Místo: Resort Počepice (Počepice 22)`,
+    `- Obřad: 15. srpna ve 14:00`,
+    `- Možnost přijet na celý víkend: 14.–16. srpna`,
+    `- Ubytování: rezervovaný celý dům pouze pro nás`,
+    `- Dary: věcné nejsou potřeba (vše máme), potěší příspěvek na svatební cestu nebo bydlení`,
+    `- Dress code: společenský styl „svatební garden party"`,
+    `- Dámy prosíme nevolit bílou (vyhrazena pro nevěstu)`,
     ``,
     `Těšíme se na vás!`,
     `— ${weddingConfig.couple}`,
