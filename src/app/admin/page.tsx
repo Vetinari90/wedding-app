@@ -66,7 +66,7 @@ export default async function AdminPage() {
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Odpovědí celkem" value={rows.length} />
-          <Stat label="Přijde osob" value={totalPeople} accent />
+          <Stat label="Přijde osob (dospělí + děti)" value={totalPeople} accent />
           <Stat label="Omluveno" value={notAttending.length} />
           <Stat label="Chce ubytování" value={accommodation} />
         </div>
