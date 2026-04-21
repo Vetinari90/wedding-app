@@ -39,6 +39,16 @@ export const rsvpSchema = z
       message: "Vyberte prosím délku pobytu",
       path: ["accommodation_stay"],
     },
+  )
+  .refine(
+    (d) =>
+      d.attending === "no" ||
+      d.accommodation_choice === "need" ||
+      d.accommodation_choice === "none",
+    {
+      message: "Vyberte prosím jednu z možností ubytování",
+      path: ["accommodation_choice"],
+    },
   );
 
 export type RsvpInput = z.infer<typeof rsvpSchema>;

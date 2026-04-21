@@ -62,10 +62,11 @@ export default function RsvpForm() {
 
   const hasConflict = Boolean(conflicts.name || conflicts.companion_name);
   const isChecking = Boolean(checking.name || checking.companion_name);
+  const missingChoice = attending === "yes" && accChoice === "";
   const missingStay =
     attending === "yes" && accChoice === "need" && accStay === "";
   const submitDisabled =
-    pending || hasConflict || isChecking || missingStay;
+    pending || hasConflict || isChecking || missingChoice || missingStay;
 
   // Klient-side konflikt má přednost před server-side chybou ze stejného pole.
   const errName = conflicts.name ?? serverErr("name");
@@ -206,7 +207,7 @@ export default function RsvpForm() {
           </div>
 
           <div className="space-y-3">
-            <span className="text-sm font-medium">Ubytování</span>
+            <span className="text-sm font-medium">Ubytování *</span>
             <div className="grid sm:grid-cols-2 gap-3">
               <ChoiceCard
                 label="Potřebuji zajistit ubytování"
@@ -225,6 +226,11 @@ export default function RsvpForm() {
                 }}
               />
             </div>
+            {serverErr("accommodation_choice") && !missingChoice && (
+              <span className="text-xs text-red-600">
+                {serverErr("accommodation_choice")}
+              </span>
+            )}
             {/* Hidden input, aby se choice poslalo na server */}
             <input
               type="hidden"
@@ -294,9 +300,11 @@ export default function RsvpForm() {
             ? "Ověřuji..."
             : hasConflict
               ? "Opravte prosím chyby výše"
-              : missingStay
-                ? "Vyberte délku pobytu"
-                : "Odeslat potvrzení"}
+              : missingChoice
+                ? "Vyberte možnost ubytování"
+                : missingStay
+                  ? "Vyberte délku pobytu"
+                  : "Odeslat potvrzení"}
       </button>
     </form>
   );
