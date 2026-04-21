@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { listRsvp, drinkLabel, type RsvpRow } from "@/lib/db";
+import {
+  listRsvp,
+  drinkLabel,
+  accommodationStayLabel,
+  type RsvpRow,
+} from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +22,7 @@ const COLUMNS: Array<[keyof RsvpRow, string]> = [
   ["dietary_notes", "Dieta/alergie"],
   ["drinks", "Nápoje"],
   ["accommodation_needed", "Ubytování"],
+  ["accommodation_stay", "Délka pobytu"],
   ["transport_notes", "Doprava"],
   ["message", "Vzkaz"],
 ];
@@ -49,6 +55,11 @@ export async function GET() {
             .map((s) => drinkLabel(s))
             .join(", ");
           return csvEscape(labels);
+        }
+        if (key === "accommodation_stay") {
+          return csvEscape(
+            accommodationStayLabel((v as string | null) ?? null),
+          );
         }
         return csvEscape(v);
       }).join(";"),

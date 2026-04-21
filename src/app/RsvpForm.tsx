@@ -8,10 +8,19 @@ const initial: FormState = { ok: false };
 
 type FieldName = "name" | "companion_name";
 
+type AccChoice = "" | "need" | "none";
+type AccStay = "" | "weekend" | "sat_sun";
+
 export default function RsvpForm() {
   const [state, formAction, pending] = useActionState(submitRsvp, initial);
   const [attending, setAttending] = useState<"yes" | "no">(
     (state.values?.attending as "yes" | "no") ?? "yes",
+  );
+  const [accChoice, setAccChoice] = useState<AccChoice>(
+    (state.values?.accommodation_choice as AccChoice) ?? "",
+  );
+  const [accStay, setAccStay] = useState<AccStay>(
+    (state.values?.accommodation_stay as AccStay) ?? "",
   );
   const [conflicts, setConflicts] = useState<{
     name?: string;
@@ -53,7 +62,10 @@ export default function RsvpForm() {
 
   const hasConflict = Boolean(conflicts.name || conflicts.companion_name);
   const isChecking = Boolean(checking.name || checking.companion_name);
-  const submitDisabled = pending || hasConflict || isChecking;
+  const missingStay =
+    attending === "yes" && accChoice === "need" && accStay === "";
+  const submitDisabled =
+    pending || hasConflict || isChecking || missingStay;
 
   // Klient-side konflikt má přednost před server-side chybou ze stejného pole.
   const errName = conflicts.name ?? serverErr("name");
@@ -193,16 +205,62 @@ export default function RsvpForm() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                name="accommodation_needed"
-                defaultChecked={val("accommodation_needed") === "on"}
-                className="h-4 w-4 accent-wedding-sage"
+          <div className="space-y-3">
+            <span className="text-sm font-medium">Ubytování</span>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <ChoiceCard
+                label="Potřebuji zajistit ubytování"
+                checked={accChoice === "need"}
+                onToggle={() => {
+                  setAccChoice((c) => (c === "need" ? "" : "need"));
+                  if (accChoice === "need") setAccStay("");
+                }}
               />
-              <span>Potřebuji zajistit ubytování</span>
-            </label>
+              <ChoiceCard
+                label="Nepotřebuju ubytování, budu jen jeden den"
+                checked={accChoice === "none"}
+                onToggle={() => {
+                  setAccChoice((c) => (c === "none" ? "" : "none"));
+                  setAccStay("");
+                }}
+              />
+            </div>
+            {/* Hidden input, aby se choice poslalo na server */}
+            <input
+              type="hidden"
+              name="accommodation_choice"
+              value={accChoice}
+            />
+
+            {accChoice === "need" && (
+              <div className="rounded-md border border-wedding-sage/30 bg-white p-4 space-y-2">
+                <span className="text-sm font-medium">Délka pobytu *</span>
+                <div className="space-y-2">
+                  <StayOption
+                    value="weekend"
+                    checked={accStay === "weekend"}
+                    onSelect={() => setAccStay("weekend")}
+                    label="Zůstanu celý víkend (pá–ne)"
+                  />
+                  <StayOption
+                    value="sat_sun"
+                    checked={accStay === "sat_sun"}
+                    onSelect={() => setAccStay("sat_sun")}
+                    label="Přijedu v sobotu na obřad a přespím (so–ne)"
+                  />
+                </div>
+                {serverErr("accommodation_stay") && (
+                  <span className="text-xs text-red-600">
+                    {serverErr("accommodation_stay")}
+                  </span>
+                )}
+                <input
+                  type="hidden"
+                  name="accommodation_stay"
+                  value={accStay}
+                />
+              </div>
+            )}
           </div>
 
           <Field label="Doprava (poznámka)" error={serverErr("transport_notes")}>
@@ -236,7 +294,9 @@ export default function RsvpForm() {
             ? "Ověřuji..."
             : hasConflict
               ? "Opravte prosím chyby výše"
-              : "Odeslat potvrzení"}
+              : missingStay
+                ? "Vyberte délku pobytu"
+                : "Odeslat potvrzení"}
       </button>
     </form>
   );
@@ -296,6 +356,86 @@ function RadioCard({
         className="sr-only"
       />
       {label}
+    </label>
+  );
+}
+
+function ChoiceCard({
+  label,
+  checked,
+  onToggle,
+}: {
+  label: string;
+  checked: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={checked}
+      className={`flex items-center gap-3 rounded-md border px-4 py-3 text-left transition ${
+        checked
+          ? "border-wedding-sage bg-wedding-sage/10"
+          : "border-wedding-ink/20 bg-white hover:border-wedding-sage/60"
+      }`}
+    >
+      <span
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+          checked
+            ? "border-wedding-sage bg-wedding-sage text-white"
+            : "border-wedding-ink/30 bg-white"
+        }`}
+        aria-hidden="true"
+      >
+        {checked && (
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="2 6 5 9 10 3" />
+          </svg>
+        )}
+      </span>
+      <span className="text-sm">{label}</span>
+    </button>
+  );
+}
+
+function StayOption({
+  value,
+  checked,
+  onSelect,
+  label,
+}: {
+  value: string;
+  checked: boolean;
+  onSelect: () => void;
+  label: string;
+}) {
+  return (
+    <label
+      className={`flex items-start gap-3 rounded border px-3 py-2 cursor-pointer transition ${
+        checked
+          ? "border-wedding-sage bg-wedding-sage/5"
+          : "border-wedding-ink/15 hover:border-wedding-sage/50"
+      }`}
+    >
+      <input
+        type="radio"
+        name="_accommodation_stay_ui"
+        value={value}
+        checked={checked}
+        onChange={onSelect}
+        className="mt-1 h-4 w-4 accent-wedding-sage"
+      />
+      <span className="text-sm leading-snug">{label}</span>
     </label>
   );
 }

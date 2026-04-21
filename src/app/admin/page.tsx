@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
-import { listRsvp, DRINK_OPTIONS, drinkLabel } from "@/lib/db";
+import {
+  listRsvp,
+  DRINK_OPTIONS,
+  drinkLabel,
+  accommodationStayLabel,
+} from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { logoutAction } from "./login/actions";
 
@@ -20,6 +25,9 @@ export default async function AdminPage() {
   );
   const accommodation = attending.filter((r) => r.accommodation_needed === 1).length;
   const withDiet = attending.filter((r) => r.dietary_notes).length;
+  const stayWeekend = attending.filter((r) => r.accommodation_stay === "weekend").length;
+  const staySatSun = attending.filter((r) => r.accommodation_stay === "sat_sun").length;
+  const stayOneDay = attending.filter((r) => r.accommodation_stay === "one_day").length;
 
   // Drink stats — count across attending guests (multi-select).
   const drinkCounts: Record<string, number> = {};
@@ -66,19 +74,37 @@ export default async function AdminPage() {
           Dietní požadavky: {withDiet} &middot; Potvrzených odpovědí: {attending.length}
         </div>
 
-        <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
-          <div className="text-xs uppercase tracking-wide text-wedding-ink/60">
-            Preference nápojů
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl bg-white p-4 shadow-sm">
+            <div className="text-xs uppercase tracking-wide text-wedding-ink/60">
+              Preference nápojů
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {DRINK_OPTIONS.map((d) => (
+                <span
+                  key={d.value}
+                  className="rounded-full bg-wedding-sage/10 px-3 py-1 text-sm"
+                >
+                  {d.label}: <strong>{drinkCounts[d.value]}</strong>
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {DRINK_OPTIONS.map((d) => (
-              <span
-                key={d.value}
-                className="rounded-full bg-wedding-sage/10 px-3 py-1 text-sm"
-              >
-                {d.label}: <strong>{drinkCounts[d.value]}</strong>
+          <div className="rounded-xl bg-white p-4 shadow-sm">
+            <div className="text-xs uppercase tracking-wide text-wedding-ink/60">
+              Ubytování
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2 text-sm">
+              <span className="rounded-full bg-wedding-sage/10 px-3 py-1">
+                Pá–ne: <strong>{stayWeekend}</strong>
               </span>
-            ))}
+              <span className="rounded-full bg-wedding-sage/10 px-3 py-1">
+                So–ne: <strong>{staySatSun}</strong>
+              </span>
+              <span className="rounded-full bg-wedding-rose/10 px-3 py-1">
+                Jen 1 den: <strong>{stayOneDay}</strong>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -136,7 +162,9 @@ export default async function AdminPage() {
                           .join(", ")
                       : "—"}
                   </Td>
-                  <Td>{r.accommodation_needed ? "Ano" : "—"}</Td>
+                  <Td className="max-w-[180px] text-xs">
+                    {accommodationStayLabel(r.accommodation_stay)}
+                  </Td>
                   <Td className="text-xs">
                     {r.email && <div>{r.email}</div>}
                     {r.phone && <div>{r.phone}</div>}

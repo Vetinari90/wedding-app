@@ -102,6 +102,19 @@ export async function submitRsvp(
 
   const drinks = attending === 1 ? parseDrinks(formData) : [];
 
+  // Ubytování: pokud host nepřijde, vynulujeme. Jinak odvoz z choice+stay.
+  let stay: string | null = null;
+  let needed: 0 | 1 = 0;
+  if (attending === 1) {
+    if (d.accommodation_choice === "need" && d.accommodation_stay) {
+      stay = d.accommodation_stay;
+      needed = 1;
+    } else if (d.accommodation_choice === "none") {
+      stay = "one_day";
+      needed = 0;
+    }
+  }
+
   await insertRsvp({
     name: d.name,
     email: d.email,
@@ -111,10 +124,11 @@ export async function submitRsvp(
     children_count: attending === 1 ? d.children_count : 0,
     companion_name: d.companion_name || null,
     dietary_notes: d.dietary_notes || null,
-    accommodation_needed: d.accommodation_needed ? 1 : 0,
+    accommodation_needed: needed,
     transport_notes: d.transport_notes || null,
     message: d.message || null,
     drinks: drinks.length > 0 ? drinks.join(",") : null,
+    accommodation_stay: stay,
   });
 
   // Best-effort — nikdy neblokovat potvrzení submitu kvůli selhání emailu.

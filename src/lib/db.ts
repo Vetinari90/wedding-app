@@ -52,13 +52,16 @@ async function ensureSchema(c: Client): Promise<void> {
     `CREATE INDEX IF NOT EXISTS idx_rsvp_created_at ON rsvp(created_at DESC)`,
   );
 
-  // Lightweight migration: add drinks column if missing (existing DBs).
+  // Lightweight migration: add new columns if missing (existing DBs).
   const info = await c.execute(`PRAGMA table_info(rsvp)`);
   const columns = new Set(
     (info.rows as unknown as Array<{ name: string }>).map((r) => r.name),
   );
   if (!columns.has("drinks")) {
     await c.execute(`ALTER TABLE rsvp ADD COLUMN drinks TEXT`);
+  }
+  if (!columns.has("accommodation_stay")) {
+    await c.execute(`ALTER TABLE rsvp ADD COLUMN accommodation_stay TEXT`);
   }
 
   _initialized = true;
@@ -85,7 +88,19 @@ export type RsvpRow = {
   transport_notes: string | null;
   message: string | null;
   drinks: string | null; // CSV: "pivo,vino,..."
+  accommodation_stay: string | null; // "weekend" | "sat_sun" | "one_day"
 };
+
+export const ACCOMMODATION_STAY_LABELS: Record<string, string> = {
+  weekend: "Celý víkend (pá–ne)",
+  sat_sun: "Sobota–neděle (obřad a přespání)",
+  one_day: "Bez ubytování (jen jeden den)",
+};
+
+export function accommodationStayLabel(value: string | null): string {
+  if (!value) return "—";
+  return ACCOMMODATION_STAY_LABELS[value] ?? value;
+}
 
 // Re-export drink helpers from the client-safe module so existing
 // server-side imports (admin, export, actions) keep working.
@@ -105,6 +120,7 @@ export async function insertRsvp(values: {
   transport_notes: string | null;
   message: string | null;
   drinks: string | null;
+  accommodation_stay: string | null;
 }): Promise<void> {
   const db = await getDb();
   const args: InValue[] = [
@@ -120,13 +136,15 @@ export async function insertRsvp(values: {
     values.transport_notes,
     values.message,
     values.drinks,
+    values.accommodation_stay,
   ];
   await db.execute({
     sql: `INSERT INTO rsvp (
       name, email, phone, attending,
       adults_count, children_count, companion_name,
-      dietary_notes, accommodation_needed, transport_notes, message, drinks
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      dietary_notes, accommodation_needed, transport_notes, message, drinks,
+      accommodation_stay
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args,
   });
 }
