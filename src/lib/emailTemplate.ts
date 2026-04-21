@@ -14,13 +14,14 @@ export function buildConfirmationEmail(guestName: string): {
   const footerImg = `${PUBLIC_BASE_URL}/patka.png`;
 
   const intro = `Milý/á ${escapeHtml(guestName)},`;
-  const thanks = `děkujeme za potvrzení účasti na naší svatbě! 💍`;
+  const thanks = `děkujeme ti za potvrzení účasti na naší svatbě! 💍`;
 
   const paragraphs = [
-    `Pro ty z vás, kteří s námi plánují strávit celý svatební víkend, je možné přijet už v pátek od 10:00. Můžete si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
-    `Parkování je možné přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Ostatní prosíme, aby parkovali rozumně po vesnici a místo tak šetřili.`,
-    `Do Počepic se lze pohodlně dostat i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
-    `Ubytování rádi zajistíme všem, kdo o něj budou mít zájem. Počítejte prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+    `pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav – budeme rádi za každou pomoc i společnost.`,
+    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když se rozprostřeš po vesnici a místo tak budeme moci šetřit.`,
+    `Do Počepic se dostaneš pohodlně i bez auta – jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
+    `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+    `Dej nám prosím vědět, zda plánuješ přijet už v pátek a zda budeš chtít ubytování.`,
   ];
 
   const bullets = [
@@ -101,15 +102,17 @@ export function buildConfirmationEmail(guestName: string): {
   const text = [
     `Milý/á ${guestName},`,
     ``,
-    `děkujeme za potvrzení účasti na naší svatbě!`,
+    `děkujeme ti za potvrzení účasti na naší svatbě!`,
     ``,
-    `Pro ty z vás, kteří s námi plánují strávit celý svatební víkend, je možné přijet už v pátek od 10:00. Můžete si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
+    `pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav – budeme rádi za každou pomoc i společnost.`,
     ``,
-    `Parkování je možné přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Ostatní prosíme, aby parkovali rozumně po vesnici a místo tak šetřili.`,
+    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když se rozprostřeš po vesnici a místo tak budeme moci šetřit.`,
     ``,
-    `Do Počepic se lze pohodlně dostat i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
+    `Do Počepic se dostaneš pohodlně i bez auta – jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
     ``,
-    `Ubytování rádi zajistíme všem, kdo o něj budou mít zájem. Počítejte prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+    `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
+    ``,
+    `Dej nám prosím vědět, zda plánuješ přijet už v pátek a zda budeš chtít ubytování.`,
     ``,
     `- Místo: Resort Počepice (Počepice 22)`,
     `- Obřad: 15. srpna ve 14:00`,
