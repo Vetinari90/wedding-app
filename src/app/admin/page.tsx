@@ -19,10 +19,9 @@ export default async function AdminPage() {
 
   const attending = rows.filter((r) => r.attending === 1);
   const notAttending = rows.filter((r) => r.attending === 0);
-  const totalPeople = attending.reduce(
-    (sum, r) => sum + r.adults_count + r.children_count,
-    0,
-  );
+  const totalAdults = attending.reduce((sum, r) => sum + r.adults_count, 0);
+  const totalChildren = attending.reduce((sum, r) => sum + r.children_count, 0);
+  const totalPeople = totalAdults + totalChildren;
   const accommodation = attending.filter((r) => r.accommodation_needed === 1).length;
   const withDiet = attending.filter((r) => r.dietary_notes).length;
   const stayWeekend = attending.filter((r) => r.accommodation_stay === "weekend").length;
@@ -66,7 +65,11 @@ export default async function AdminPage() {
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Odpovědí celkem" value={rows.length} />
-          <Stat label="Přijde osob (dospělí + děti)" value={totalPeople} accent />
+          <Stat
+            label="Přijde osob (dospělí + děti)"
+            value={`${totalPeople} (${totalAdults}+${totalChildren})`}
+            accent
+          />
           <Stat label="Omluveno" value={notAttending.length} />
           <Stat label="Chce ubytování" value={accommodation} />
         </div>
@@ -183,7 +186,7 @@ export default async function AdminPage() {
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+function Stat({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div
       className={`rounded-xl p-4 shadow-sm ${

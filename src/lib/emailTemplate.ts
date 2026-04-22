@@ -17,9 +17,9 @@ export function buildConfirmationEmail(guestName: string): {
   const thanks = `děkujeme ti za potvrzení účasti na naší svatbě! 💍`;
 
   const paragraphs = [
-    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav – budeme rádi za každou pomoc i společnost.`,
-    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když se rozprostřeš po vesnici a místo tak budeme moci šetřit.`,
-    `Do Počepic se dostaneš pohodlně i bez auta – jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
+    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
+    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
+    `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
     `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
     `Dej nám prosím vědět, zda plánuješ přijet už v pátek a zda budeš chtít ubytování.`,
   ];
@@ -104,11 +104,11 @@ export function buildConfirmationEmail(guestName: string): {
     ``,
     `děkujeme ti za potvrzení účasti na naší svatbě!`,
     ``,
-    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav – budeme rádi za každou pomoc i společnost.`,
+    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
     ``,
-    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když se rozprostřeš po vesnici a místo tak budeme moci šetřit.`,
+    `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     ``,
-    `Do Počepic se dostaneš pohodlně i bez auta – jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
+    `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
     ``,
     `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
     ``,
