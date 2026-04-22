@@ -27,11 +27,19 @@ export function buildConfirmationEmail(
         ? `Moc se těšíme, že s námi oslavíš náš velký den a zůstaneš až do neděle.`
         : null;
 
-  const paragraphs = [
-    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
+  // První odstavec o pátečním příjezdu se posílá jen těm, co zvolili celý
+  // víkend (weekend) — ostatní už vědí, že přijedou v sobotu / na jeden den.
+  const fridayParagraph =
+    stay === "weekend"
+      ? `Můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`
+      : null;
+
+  const paragraphs: string[] = [];
+  if (fridayParagraph) paragraphs.push(fridayParagraph);
+  paragraphs.push(
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
-  ];
+  );
 
   const bullets = [
     `<strong>Místo:</strong> Resort Počepice (Počepice 22)`,
@@ -121,10 +129,11 @@ export function buildConfirmationEmail(
   if (stayThanks) {
     textLines.push(``, stayThanks);
   }
+  textLines.push(``);
+  if (fridayParagraph) {
+    textLines.push(fridayParagraph, ``);
+  }
   textLines.push(
-    ``,
-    `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
-    ``,
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     ``,
     `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
