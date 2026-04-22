@@ -21,10 +21,16 @@ export default function Home() {
           </p>
 
           <p>
-            Budeme ale moc rádi, pokud s námi strávíte celý víkend v klidné
-            a příjemné atmosféře <strong>od 14. do 16. srpna</strong>. Máme
-            zarezervovaný celý dům jen pro nás, takže si to společně můžeme
-            opravdu užít.
+            Pokud s námi plánujete strávit celý svatební víkend, můžete
+            přijet už v <strong>pátek od 10:00</strong>. Máme zarezervovaný
+            celý dům jen pro nás, takže si to společně můžeme opravdu užít.
+            Budeme rádi za každou pomoc i společnost při přípravách.
+          </p>
+
+          <p>
+            Ubytování vám rádi zajistíme, pokud o něj budete mít zájem.
+            Počítejte prosím s tím, že většina pokojů bude sdílená, zatímco
+            samostatné pokoje budou vyhrazeny pro nejbližší rodinu.
           </p>
 
           <div className="rounded-lg border border-wedding-sage/30 bg-white/50 p-5">

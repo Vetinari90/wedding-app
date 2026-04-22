@@ -3,7 +3,10 @@ import { weddingConfig } from "./config";
 const PUBLIC_BASE_URL =
   process.env.PUBLIC_BASE_URL || "https://konecne-ano.cz";
 
-export function buildConfirmationEmail(guestName: string): {
+export function buildConfirmationEmail(
+  guestName: string,
+  stay: string | null = null,
+): {
   subject: string;
   html: string;
   text: string;
@@ -16,12 +19,18 @@ export function buildConfirmationEmail(guestName: string): {
   const intro = `Milý/á ${escapeHtml(guestName)},`;
   const thanks = `děkujeme ti za potvrzení účasti na naší svatbě! 💍`;
 
+  // Personalizované poděkování podle zvoleného pobytu
+  const stayThanks =
+    stay === "weekend"
+      ? `Moc se těšíme, že s námi strávíš celý svatební víkend.`
+      : stay === "sat_sun"
+        ? `Moc se těšíme, že s námi oslavíš náš velký den a zůstaneš až do neděle.`
+        : null;
+
   const paragraphs = [
     `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
-    `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
-    `Dej nám prosím vědět, zda plánuješ přijet už v pátek a zda budeš chtít ubytování.`,
   ];
 
   const bullets = [
@@ -54,7 +63,12 @@ export function buildConfirmationEmail(guestName: string): {
             <tr>
               <td style="padding:28px 28px 8px;">
                 <p style="margin:0 0 16px 0;font-size:16px;line-height:1.6;color:#3d3833;">${intro}</p>
-                <p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#3d3833;">${thanks}</p>
+                <p style="margin:0 0 ${stayThanks ? "12" : "20"}px 0;font-size:16px;line-height:1.6;color:#3d3833;">${thanks}</p>
+                ${
+                  stayThanks
+                    ? `<p style="margin:0 0 20px 0;font-size:16px;line-height:1.6;color:#3d3833;">${stayThanks}</p>`
+                    : ""
+                }
                 ${paragraphs
                   .map(
                     (p) =>
@@ -99,20 +113,21 @@ export function buildConfirmationEmail(guestName: string): {
   </body>
 </html>`;
 
-  const text = [
+  const textLines: string[] = [
     `Milý/á ${guestName},`,
     ``,
     `děkujeme ti za potvrzení účasti na naší svatbě!`,
+  ];
+  if (stayThanks) {
+    textLines.push(``, stayThanks);
+  }
+  textLines.push(
     ``,
     `Pokud s námi plánuješ strávit celý svatební víkend, můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`,
     ``,
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     ``,
     `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
-    ``,
-    `Ubytování ti rádi zajistíme, pokud o něj budeš mít zájem. Počítej prosím s tím, že většina pokojů bude sdílená, zatímco samostatné pokoje budou vyhrazeny pro nejbližší rodinu.`,
-    ``,
-    `Dej nám prosím vědět, zda plánuješ přijet už v pátek a zda budeš chtít ubytování.`,
     ``,
     `- Místo: Resort Počepice (Počepice 22)`,
     `- Obřad: 15. srpna ve 14:00`,
@@ -124,7 +139,8 @@ export function buildConfirmationEmail(guestName: string): {
     ``,
     `Těšíme se na vás!`,
     `— ${weddingConfig.couple}`,
-  ].join("\n");
+  );
+  const text = textLines.join("\n");
 
   return { subject, html, text };
 }

@@ -135,7 +135,7 @@ export async function submitRsvp(
   // Jen pokud host přijde (attending === 1).
   if (attending === 1) {
     try {
-      await sendConfirmationEmail(d.email, d.name);
+      await sendConfirmationEmail(d.email, d.name, stay);
     } catch (e) {
       console.error("[submitRsvp] sendConfirmationEmail failed:", e);
     }

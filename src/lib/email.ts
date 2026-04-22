@@ -13,6 +13,7 @@ function getResend(): Resend | null {
 export async function sendConfirmationEmail(
   to: string,
   guestName: string,
+  stay: string | null = null,
 ): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -21,7 +22,7 @@ export async function sendConfirmationEmail(
   }
 
   const from = process.env.EMAIL_FROM || "onboarding@resend.dev";
-  const { subject, html, text } = buildConfirmationEmail(guestName);
+  const { subject, html, text } = buildConfirmationEmail(guestName, stay);
 
   try {
     const { error } = await resend.emails.send({
