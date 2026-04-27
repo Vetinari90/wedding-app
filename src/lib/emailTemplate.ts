@@ -33,7 +33,7 @@ export function buildConfirmationEmail(
       ? `Můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`
       : null;
   const saturdayArrivalParagraph =
-    stay === "sat_sun"
+    stay === "sat_sun" || stay === "one_day"
       ? `Prosíme tě, abys dorazil/a na místo alespoň hodinu před obřadem (nejpozději do 13:00). Předejdeme tak zbytečnému svatebnímu shonu.`
       : null;
 
