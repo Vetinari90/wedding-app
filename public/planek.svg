@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1980" font-family="Inter, system-ui, Arial, sans-serif">
+  <defs>
+    <style><![CDATA[
+      .bg { fill: #faf7f2; }
+      .title { font-family: Georgia, "Playfair Display", serif; font-size: 30px; fill: #3d3833; }
+      .subtitle { font-size: 18px; font-weight: 600; fill: #3d3833; letter-spacing: 1px; }
+      .area-label { font-style: italic; fill: #6b8780; font-size: 16px; }
+      .room { stroke: #3d3833; stroke-width: 1.5; }
+      .outline { fill: none; stroke: #3d3833; stroke-width: 3; }
+      .label { fill: #3d3833; font-size: 13px; text-anchor: middle; }
+      .label-bold { font-weight: 600; }
+      .label-sub { font-size: 10px; fill: #5a534b; }
+      .door { stroke: #c9a9a6; stroke-width: 4; fill: none; stroke-linecap: round; }
+      .stair-line { stroke: #3d3833; stroke-width: 0.7; }
+      .compass-circle { fill: white; stroke: #3d3833; stroke-width: 1.2; }
+      .compass-text { font-size: 11px; font-weight: 600; text-anchor: middle; fill: #3d3833; }
+      .legend-text { font-size: 12px; fill: #3d3833; }
+      .legend-title { font-size: 13px; font-weight: 600; fill: #3d3833; }
+      /* Room types */
+      .bedroom { fill: #ead6ce; }
+      .common { fill: #cfe0d4; }
+      .service { fill: #d8e1ec; }
+      .bar { fill: #ecd9b7; }
+      .sauna { fill: #e8c5a7; }
+      .corridor { fill: #ece5d6; }
+      .stair { fill: #c5bdac; }
+    ]]></style>
+
+    <!-- Reusable spiral staircase symbol -->
+    <symbol id="spiral-stair" viewBox="-20 -20 40 40">
+      <circle r="18" class="room stair"/>
+      <line x1="0" y1="0" x2="0" y2="-18" class="stair-line"/>
+      <line x1="0" y1="0" x2="14" y2="-12" class="stair-line"/>
+      <line x1="0" y1="0" x2="18" y2="0" class="stair-line"/>
+      <line x1="0" y1="0" x2="14" y2="12" class="stair-line"/>
+      <line x1="0" y1="0" x2="0" y2="18" class="stair-line"/>
+      <line x1="0" y1="0" x2="-14" y2="12" class="stair-line"/>
+      <line x1="0" y1="0" x2="-18" y2="0" class="stair-line"/>
+      <line x1="0" y1="0" x2="-14" y2="-12" class="stair-line"/>
+      <text y="3" text-anchor="middle" font-size="11" font-weight="600">↑</text>
+    </symbol>
+
+    <!-- Reusable straight staircase symbol -->
+    <symbol id="straight-stair" viewBox="0 0 40 60">
+      <rect width="40" height="60" class="room stair"/>
+      <line x1="0" y1="10" x2="40" y2="10" class="stair-line"/>
+      <line x1="0" y1="20" x2="40" y2="20" class="stair-line"/>
+      <line x1="0" y1="30" x2="40" y2="30" class="stair-line"/>
+      <line x1="0" y1="40" x2="40" y2="40" class="stair-line"/>
+      <line x1="0" y1="50" x2="40" y2="50" class="stair-line"/>
+      <text x="20" y="35" text-anchor="middle" font-size="14" font-weight="600">↑</text>
+    </symbol>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" width="1200" height="1980"/>
+
+  <!-- Header -->
+  <text class="title" x="600" y="55" text-anchor="middle">Resort Počepice — plánek</text>
+  <text x="600" y="82" text-anchor="middle" font-style="italic" fill="#87a396" font-size="14">konečně-ano.cz</text>
+
+  <!-- ============================================ -->
+  <!-- FLOOR 1 — PŘÍZEMÍ                            -->
+  <!-- ============================================ -->
+  <g transform="translate(0, 110)">
+    <text class="subtitle" x="600" y="22" text-anchor="middle">PŘÍZEMÍ (1. NP)</text>
+
+    <!-- Compass -->
+    <g transform="translate(1080, 60)">
+      <circle r="22" class="compass-circle"/>
+      <text class="compass-text" y="-9">S</text>
+      <text class="compass-text" y="18">J</text>
+      <text class="compass-text" x="-12" y="4">Z</text>
+      <text class="compass-text" x="12" y="4">V</text>
+      <text class="compass-text" y="3" font-size="9" fill="#c9a9a6">✦</text>
+    </g>
+
+    <!-- Plan area: building uses internal coords (80..780 × 100..650) -->
+    <g transform="translate(170, 40)">
+
+      <!-- Outdoor labels -->
+      <text class="area-label" x="370" y="240" text-anchor="middle">Vnitřní dvůr</text>
+      <text class="area-label" x="430" y="710" text-anchor="middle">Přední zahrada</text>
+
+      <!-- L-shape building outline -->
+      <path class="outline" d="M 80,350 L 80,650 L 780,650 L 780,100 L 580,100 L 580,350 Z"/>
+
+      <!-- ROOMS -->
+
+      <!-- 3rd staircase shaft (NW corner, exits to courtyard) -->
+      <rect class="room stair" x="80" y="350" width="50" height="160"/>
+      <use href="#straight-stair" x="85" y="395" width="40" height="60"/>
+      <text class="label label-sub" x="105" y="378" transform="rotate(-90, 105, 378)">↓ do dvora</text>
+
+      <!-- Barrier-free bedroom (accessible from courtyard) -->
+      <rect class="room bedroom" x="130" y="350" width="170" height="160"/>
+      <text class="label label-bold" x="215" y="420">Bezbariérová</text>
+      <text class="label label-bold" x="215" y="436">ložnice</text>
+      <text class="label label-sub" x="215" y="455">♿ vstup ze dvora</text>
+
+      <!-- Newlywed apartment -->
+      <rect class="room bedroom" x="80" y="510" width="220" height="140"/>
+      <text class="label label-bold" x="190" y="575">Novomanželské</text>
+      <text class="label label-bold" x="190" y="591">apartmá</text>
+      <text class="label label-sub" x="190" y="608">✦</text>
+
+      <!-- GP apartment (passage room, barrier-free) -->
+      <rect class="room bedroom" x="300" y="350" width="170" height="300"/>
+      <line x1="300" y1="500" x2="470" y2="500" class="room" stroke-dasharray="4 3" stroke="#3d3833" stroke-width="1"/>
+      <text class="label label-bold" x="385" y="420">Apartmá</text>
+      <text class="label label-bold" x="385" y="436">prarodičů</text>
+      <text class="label label-sub" x="385" y="453">♿ s průchozím</text>
+      <text class="label label-sub" x="385" y="466">pokojem</text>
+      <text class="label label-sub" x="385" y="555">(průchozí pokoj)</text>
+      <text class="label label-sub" x="385" y="600">(ložnice)</text>
+
+      <!-- Corridor (průchod) -->
+      <rect class="room corridor" x="470" y="350" width="80" height="300"/>
+      <text class="label label-bold" x="510" y="450" transform="rotate(-90, 510, 450)">Průchod</text>
+      <use href="#straight-stair" x="488" y="565" width="40" height="60"/>
+      <text class="label label-sub" x="510" y="650" text-anchor="middle">↑ patro</text>
+
+      <!-- Bar with tap -->
+      <rect class="room bar" x="550" y="350" width="230" height="80"/>
+      <text class="label label-bold" x="665" y="385">Bar</text>
+      <text class="label label-sub" x="665" y="402">s výčepem</text>
+
+      <!-- Small dining (jídelna) with spiral stairs -->
+      <rect class="room common" x="550" y="430" width="115" height="80"/>
+      <text class="label label-bold" x="608" y="463">Jídelna</text>
+      <use href="#spiral-stair" x="588" y="478" width="32" height="32"/>
+
+      <!-- Kitchen -->
+      <rect class="room service" x="665" y="430" width="115" height="80"/>
+      <text class="label label-bold" x="722" y="475">Kuchyň</text>
+
+      <!-- Hall (sál) — main dining and dancing -->
+      <rect class="room common" x="550" y="510" width="230" height="140"/>
+      <text class="label label-bold" x="665" y="575">Stolovací</text>
+      <text class="label label-bold" x="665" y="591">a taneční sál</text>
+
+      <!-- Sauna (whole short arm) -->
+      <rect class="room sauna" x="580" y="100" width="200" height="250"/>
+      <text class="label label-bold" x="680" y="220">Sauna</text>
+      <text class="label label-sub" x="680" y="240">→ vstup do dvora</text>
+
+      <!-- Doors (openings as small line breaks would require complex paths) -->
+      <!-- Front entrance -->
+      <line x1="490" y1="650" x2="530" y2="650" class="door"/>
+      <text class="label label-sub" x="510" y="670" text-anchor="middle">vchod</text>
+      <!-- Corridor → courtyard -->
+      <line x1="490" y1="350" x2="530" y2="350" class="door"/>
+      <!-- Sauna → courtyard -->
+      <line x1="580" y1="200" x2="580" y2="240" class="door"/>
+      <!-- Barrier-free bedroom → courtyard -->
+      <line x1="180" y1="350" x2="220" y2="350" class="door"/>
+      <!-- Stair shaft → courtyard -->
+      <line x1="90" y1="350" x2="120" y2="350" class="door"/>
+    </g>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- FLOOR 2 — 1. PATRO                           -->
+  <!-- ============================================ -->
+  <g transform="translate(0, 1010)">
+    <text class="subtitle" x="600" y="22" text-anchor="middle">1. PATRO (2. NP)</text>
+
+    <!-- Compass -->
+    <g transform="translate(1080, 60)">
+      <circle r="22" class="compass-circle"/>
+      <text class="compass-text" y="-9">S</text>
+      <text class="compass-text" y="18">J</text>
+      <text class="compass-text" x="-12" y="4">Z</text>
+      <text class="compass-text" x="12" y="4">V</text>
+      <text class="compass-text" y="3" font-size="9" fill="#c9a9a6">✦</text>
+    </g>
+
+    <g transform="translate(170, 40)">
+
+      <text class="area-label" x="370" y="240" text-anchor="middle">Vnitřní dvůr</text>
+      <text class="area-label" x="430" y="710" text-anchor="middle">Přední zahrada</text>
+
+      <!-- L-shape building outline -->
+      <path class="outline" d="M 80,350 L 80,650 L 780,650 L 780,100 L 580,100 L 580,350 Z"/>
+
+      <!-- 3rd staircase (going down to courtyard, west end of upper hall) -->
+      <rect class="room stair" x="80" y="350" width="50" height="160"/>
+      <use href="#straight-stair" x="85" y="395" width="40" height="60"/>
+      <text class="label label-sub" x="105" y="378" transform="rotate(-90, 105, 378)">↓ do dvora</text>
+
+      <!-- Western corridor (chodba) -->
+      <rect class="room corridor" x="130" y="475" width="340" height="50"/>
+      <text class="label label-sub" x="300" y="505" text-anchor="middle">Chodba</text>
+
+      <!-- 3 private apartments (south of west corridor) -->
+      <rect class="room bedroom" x="130" y="525" width="113" height="125"/>
+      <text class="label label-bold" x="186" y="580">Apartmá 1</text>
+      <text class="label label-sub" x="186" y="596">soukromé</text>
+
+      <rect class="room bedroom" x="243" y="525" width="113" height="125"/>
+      <text class="label label-bold" x="300" y="580">Apartmá 2</text>
+      <text class="label label-sub" x="300" y="596">soukromé</text>
+
+      <rect class="room bedroom" x="356" y="525" width="114" height="125"/>
+      <text class="label label-bold" x="413" y="580">Apartmá 3</text>
+      <text class="label label-sub" x="413" y="596">soukromé</text>
+
+      <!-- Bedrooms north of west corridor (filling the L cutoff side) -->
+      <rect class="room bedroom" x="130" y="350" width="170" height="125"/>
+      <text class="label label-bold" x="215" y="412">Ložnice</text>
+      <text class="label label-sub" x="215" y="430">SZ</text>
+
+      <rect class="room bedroom" x="300" y="350" width="170" height="125"/>
+      <text class="label label-bold" x="385" y="412">Ložnice</text>
+      <text class="label label-sub" x="385" y="430">S</text>
+
+      <!-- Corridor stair landing (above 1NP corridor) -->
+      <rect class="room corridor" x="470" y="475" width="80" height="175"/>
+      <use href="#straight-stair" x="488" y="565" width="40" height="60"/>
+      <text class="label label-sub" x="510" y="495" text-anchor="middle">schody</text>
+      <text class="label label-sub" x="510" y="510" text-anchor="middle">z přízemí</text>
+
+      <!-- East corridor stub (towards eastern bedrooms) -->
+      <rect class="room corridor" x="550" y="475" width="230" height="35"/>
+      <text class="label label-sub" x="665" y="496" text-anchor="middle">chodba ke schodům</text>
+
+      <!-- Eastern bedrooms (right of corridor stairs) -->
+      <rect class="room bedroom" x="550" y="510" width="115" height="140"/>
+      <text class="label label-bold" x="608" y="575">Ložnice V1</text>
+      <text class="label label-sub" x="608" y="591">průchozí</text>
+
+      <rect class="room bedroom" x="665" y="510" width="115" height="140"/>
+      <text class="label label-bold" x="722" y="575">Ložnice V2</text>
+
+      <!-- Spiral stair landing (above 1NP jídelna) -->
+      <use href="#spiral-stair" x="592" y="430" width="32" height="32"/>
+
+      <!-- Two bedrooms accessed via spiral stair -->
+      <rect class="room bedroom" x="550" y="350" width="80" height="125"/>
+      <text class="label label-bold" x="590" y="405">Lož.</text>
+      <text class="label label-sub" x="590" y="420">spirálová Z</text>
+
+      <rect class="room bedroom" x="630" y="350" width="150" height="125"/>
+      <text class="label label-bold" x="705" y="405">Ložnice</text>
+      <text class="label label-sub" x="705" y="423">spirálová V</text>
+
+      <!-- Short arm 2NP — bedroom/apartment -->
+      <rect class="room bedroom" x="580" y="100" width="200" height="250"/>
+      <text class="label label-bold" x="680" y="220">Apartmá</text>
+      <text class="label label-bold" x="680" y="236">v křídle</text>
+
+      <!-- Doors -->
+      <line x1="90" y1="350" x2="120" y2="350" class="door"/>
+      <text class="label label-sub" x="105" y="345" text-anchor="middle">↓</text>
+    </g>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LEGEND                                       -->
+  <!-- ============================================ -->
+  <g transform="translate(80, 1860)">
+    <text class="legend-title" x="0" y="0">Legenda</text>
+
+    <g transform="translate(0, 16)">
+      <rect class="room bedroom" x="0" y="0" width="20" height="14"/>
+      <text class="legend-text" x="28" y="11">Ložnice / apartmá</text>
+
+      <rect class="room common" x="170" y="0" width="20" height="14"/>
+      <text class="legend-text" x="198" y="11">Společné prostory (sál, jídelna)</text>
+
+      <rect class="room service" x="430" y="0" width="20" height="14"/>
+      <text class="legend-text" x="458" y="11">Kuchyň</text>
+
+      <rect class="room bar" x="540" y="0" width="20" height="14"/>
+      <text class="legend-text" x="568" y="11">Bar</text>
+
+      <rect class="room sauna" x="620" y="0" width="20" height="14"/>
+      <text class="legend-text" x="648" y="11">Sauna</text>
+
+      <rect class="room corridor" x="710" y="0" width="20" height="14"/>
+      <text class="legend-text" x="738" y="11">Chodba / průchod</text>
+
+      <rect class="room stair" x="870" y="0" width="20" height="14"/>
+      <text class="legend-text" x="898" y="11">Schodiště</text>
+    </g>
+  </g>
+</svg>
