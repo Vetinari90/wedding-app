@@ -27,15 +27,19 @@ export function buildConfirmationEmail(
         ? `Moc se těšíme, že s námi oslavíš náš velký den a zůstaneš až do neděle.`
         : null;
 
-  // První odstavec o pátečním příjezdu se posílá jen těm, co zvolili celý
-  // víkend (weekend) — ostatní už vědí, že přijedou v sobotu / na jeden den.
+  // Odstavce závislé na zvoleném pobytu — vzájemně se vylučují.
   const fridayParagraph =
     stay === "weekend"
       ? `Můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`
       : null;
+  const saturdayArrivalParagraph =
+    stay === "sat_sun"
+      ? `Prosíme tě, abys dorazil/a na místo alespoň hodinu před obřadem (nejpozději do 13:00). Předejdeme tak zbytečnému svatebnímu shonu.`
+      : null;
 
   const paragraphs: string[] = [];
   if (fridayParagraph) paragraphs.push(fridayParagraph);
+  if (saturdayArrivalParagraph) paragraphs.push(saturdayArrivalParagraph);
   paragraphs.push(
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
     `Do Počepic se dostaneš pohodlně i bez auta, jezdí sem autobusové spoje přes Sedlčany, takže cesta tam i zpět je dobře dostupná veřejnou dopravou.`,
@@ -132,6 +136,9 @@ export function buildConfirmationEmail(
   textLines.push(``);
   if (fridayParagraph) {
     textLines.push(fridayParagraph, ``);
+  }
+  if (saturdayArrivalParagraph) {
+    textLines.push(saturdayArrivalParagraph, ``);
   }
   textLines.push(
     `Parkovat můžeš přímo na místě, ale přednostně ho chceme nechat pro dodavatele a nejbližší rodinu. Budeme rádi, když si najdeš místo k parkování někde po vesnici.`,
