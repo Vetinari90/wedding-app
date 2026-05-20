@@ -22,11 +22,23 @@ export default async function AdminPage() {
   const totalAdults = attending.reduce((sum, r) => sum + r.adults_count, 0);
   const totalChildren = attending.reduce((sum, r) => sum + r.children_count, 0);
   const totalPeople = totalAdults + totalChildren;
-  const accommodation = attending.filter((r) => r.accommodation_needed === 1).length;
   const withDiet = attending.filter((r) => r.dietary_notes).length;
-  const stayWeekend = attending.filter((r) => r.accommodation_stay === "weekend").length;
-  const staySatSun = attending.filter((r) => r.accommodation_stay === "sat_sun").length;
-  const stayOneDay = attending.filter((r) => r.accommodation_stay === "one_day").length;
+
+  // Pocet luzek = soucet dospelych + deti pro kazdy typ pobytu.
+  // Jen 1 den = bez luzek, ale ukazujeme pocet osob pro provozni prehled.
+  const beds = (stay: string) =>
+    attending
+      .filter((r) => r.accommodation_stay === stay)
+      .reduce((sum, r) => sum + r.adults_count + r.children_count, 0);
+  const bedsWeekend = beds("weekend");
+  const bedsSatSun = beds("sat_sun");
+  const peopleOneDay = beds("one_day"); // tihle nespi, ale pocet osob nas zajima
+  const bedsTotal = bedsWeekend + bedsSatSun;
+
+  // Pro kompatibilitu (kdybys chtel/a videt i pocet odpovedi)
+  const stayWeekendRsvps = attending.filter((r) => r.accommodation_stay === "weekend").length;
+  const staySatSunRsvps = attending.filter((r) => r.accommodation_stay === "sat_sun").length;
+  const stayOneDayRsvps = attending.filter((r) => r.accommodation_stay === "one_day").length;
 
   // Drink stats — count across attending guests (multi-select).
   const drinkCounts: Record<string, number> = {};
@@ -71,7 +83,7 @@ export default async function AdminPage() {
             accent
           />
           <Stat label="Omluveno" value={notAttending.length} />
-          <Stat label="Chce ubytování" value={accommodation} />
+          <Stat label="Lůžek k zajištění" value={bedsTotal} />
         </div>
         <div className="mt-2 text-sm text-wedding-ink/60">
           Dietní požadavky: {withDiet} &middot; Potvrzených odpovědí: {attending.length}
@@ -95,17 +107,26 @@ export default async function AdminPage() {
           </div>
           <div className="rounded-xl bg-white p-4 shadow-sm">
             <div className="text-xs uppercase tracking-wide text-wedding-ink/60">
-              Ubytování
+              Ubytování — počet lůžek
             </div>
             <div className="mt-2 flex flex-wrap gap-2 text-sm">
               <span className="rounded-full bg-wedding-sage/10 px-3 py-1">
-                Pá–ne: <strong>{stayWeekend}</strong>
+                Pá–ne: <strong>{bedsWeekend}</strong> lůžek
+                <span className="ml-1 text-wedding-ink/50">
+                  ({stayWeekendRsvps}× odp.)
+                </span>
               </span>
               <span className="rounded-full bg-wedding-sage/10 px-3 py-1">
-                So–ne: <strong>{staySatSun}</strong>
+                So–ne: <strong>{bedsSatSun}</strong> lůžek
+                <span className="ml-1 text-wedding-ink/50">
+                  ({staySatSunRsvps}× odp.)
+                </span>
               </span>
               <span className="rounded-full bg-wedding-rose/10 px-3 py-1">
-                Jen 1 den: <strong>{stayOneDay}</strong>
+                Jen 1 den: <strong>{peopleOneDay}</strong> osob
+                <span className="ml-1 text-wedding-ink/50">
+                  ({stayOneDayRsvps}× odp.)
+                </span>
               </span>
             </div>
           </div>
