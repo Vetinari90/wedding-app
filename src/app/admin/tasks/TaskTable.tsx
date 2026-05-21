@@ -40,6 +40,12 @@ function fmtCzk(n: number): string {
 
 export default function TaskTable({ tasks }: { tasks: TaskRow[] }) {
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [hideDone, setHideDone] = useState(false);
+
+  const doneCount = tasks.filter((t) => t.status === "done").length;
+  const visibleTasks = hideDone
+    ? tasks.filter((t) => t.status !== "done")
+    : tasks;
 
   return (
     <div className="space-y-4">
@@ -79,10 +85,37 @@ export default function TaskTable({ tasks }: { tasks: TaskRow[] }) {
         </button>
       </form>
 
+      {/* Filter bar */}
+      {tasks.length > 0 && (
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex cursor-pointer items-center gap-2 text-wedding-ink/80">
+            <input
+              type="checkbox"
+              checked={hideDone}
+              onChange={(e) => setHideDone(e.target.checked)}
+              className="h-4 w-4 accent-wedding-sage"
+            />
+            <span>Skrýt hotové položky</span>
+            {hideDone && doneCount > 0 && (
+              <span className="text-xs text-wedding-ink/50">
+                (skryto {doneCount})
+              </span>
+            )}
+          </label>
+          <span className="text-xs text-wedding-ink/50">
+            Zobrazeno {visibleTasks.length} / {tasks.length}
+          </span>
+        </div>
+      )}
+
       {/* List */}
       {tasks.length === 0 ? (
         <p className="rounded-xl bg-white p-8 text-center text-wedding-ink/60">
           Zatím žádné položky. Přidej první nahoře nebo načti výchozí seznam.
+        </p>
+      ) : visibleTasks.length === 0 ? (
+        <p className="rounded-xl bg-white p-8 text-center text-wedding-ink/60">
+          Všechny položky jsou hotové. 🎉 Odškrtni filtr, ať je vidíš znovu.
         </p>
       ) : (
         <div className="overflow-hidden rounded-xl border border-wedding-ink/10 bg-white">
@@ -97,7 +130,7 @@ export default function TaskTable({ tasks }: { tasks: TaskRow[] }) {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((t) =>
+              {visibleTasks.map((t) =>
                 editingId === t.id ? (
                   <tr key={t.id} className={ROW_CLASS[t.status]}>
                     <td colSpan={5} className="px-3 py-2">
