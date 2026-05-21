@@ -7,6 +7,7 @@ import {
 } from "@/lib/db";
 import { isAdmin } from "@/lib/auth";
 import { logoutAction } from "./login/actions";
+import AdminNav from "./AdminNav";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export default async function AdminPage() {
     <main className="min-h-screen bg-wedding-cream">
       <header className="border-b border-wedding-ink/10 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <h1 className="font-serif text-2xl">Admin — RSVP přehled</h1>
+          <h1 className="font-serif text-2xl">Admin</h1>
           <div className="flex items-center gap-3">
             <a
               href="/api/export"
@@ -73,6 +74,7 @@ export default async function AdminPage() {
           </div>
         </div>
       </header>
+      <AdminNav />
 
       <section className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

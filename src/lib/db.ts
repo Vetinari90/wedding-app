@@ -64,6 +64,30 @@ async function ensureSchema(c: Client): Promise<void> {
     await c.execute(`ALTER TABLE rsvp ADD COLUMN accommodation_stay TEXT`);
   }
 
+  // Tasks (Co zařídit)
+  await c.execute(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'new',
+      planned_cost INTEGER NOT NULL DEFAULT 0,
+      actual_cost INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Schedule (Harmonogram svatebního dne)
+  await c.execute(`
+    CREATE TABLE IF NOT EXISTS schedule_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      time TEXT NOT NULL,
+      activity TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
   _initialized = true;
 }
 
@@ -189,4 +213,166 @@ export async function listNormalizedNames(): Promise<{
     if (row.companion_name) companions.push(normalizeName(row.companion_name));
   }
   return { guests, companions };
+}
+
+// ============================================
+// TASKS (Co zařídit)
+// ============================================
+
+export type TaskStatus = "new" | "in_progress" | "done";
+
+export type TaskRow = {
+  id: number;
+  name: string;
+  status: TaskStatus;
+  planned_cost: number;
+  actual_cost: number;
+  sort_order: number;
+  created_at: string;
+};
+
+export async function listTasks(): Promise<TaskRow[]> {
+  const db = await getDb();
+  const res = await db.execute(
+    "SELECT * FROM tasks ORDER BY sort_order ASC, id ASC",
+  );
+  return res.rows as unknown as TaskRow[];
+}
+
+export async function insertTask(t: {
+  name: string;
+  status?: TaskStatus;
+  planned_cost?: number;
+  actual_cost?: number;
+}): Promise<void> {
+  const db = await getDb();
+  const r = await db.execute(
+    "SELECT COALESCE(MAX(sort_order), 0) + 10 AS next FROM tasks",
+  );
+  const nextOrder = Number(
+    (r.rows[0] as unknown as { next: number }).next,
+  );
+  await db.execute({
+    sql: `INSERT INTO tasks (name, status, planned_cost, actual_cost, sort_order)
+          VALUES (?, ?, ?, ?, ?)`,
+    args: [
+      t.name,
+      t.status ?? "new",
+      t.planned_cost ?? 0,
+      t.actual_cost ?? 0,
+      nextOrder,
+    ],
+  });
+}
+
+export async function updateTaskFields(
+  id: number,
+  t: Partial<{
+    name: string;
+    status: TaskStatus;
+    planned_cost: number;
+    actual_cost: number;
+  }>,
+): Promise<void> {
+  const sets: string[] = [];
+  const args: InValue[] = [];
+  if (t.name !== undefined) {
+    sets.push("name = ?");
+    args.push(t.name);
+  }
+  if (t.status !== undefined) {
+    sets.push("status = ?");
+    args.push(t.status);
+  }
+  if (t.planned_cost !== undefined) {
+    sets.push("planned_cost = ?");
+    args.push(t.planned_cost);
+  }
+  if (t.actual_cost !== undefined) {
+    sets.push("actual_cost = ?");
+    args.push(t.actual_cost);
+  }
+  if (sets.length === 0) return;
+  args.push(id);
+  const db = await getDb();
+  await db.execute({
+    sql: `UPDATE tasks SET ${sets.join(", ")} WHERE id = ?`,
+    args,
+  });
+}
+
+export async function deleteTaskById(id: number): Promise<void> {
+  const db = await getDb();
+  await db.execute({ sql: "DELETE FROM tasks WHERE id = ?", args: [id] });
+}
+
+// ============================================
+// SCHEDULE (Harmonogram)
+// ============================================
+
+export type ScheduleItemRow = {
+  id: number;
+  time: string;
+  activity: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export async function listScheduleItems(): Promise<ScheduleItemRow[]> {
+  const db = await getDb();
+  const res = await db.execute(
+    "SELECT * FROM schedule_items ORDER BY sort_order ASC, id ASC",
+  );
+  return res.rows as unknown as ScheduleItemRow[];
+}
+
+export async function insertScheduleItem(item: {
+  time: string;
+  activity: string;
+  sort_order?: number;
+}): Promise<void> {
+  const db = await getDb();
+  let order = item.sort_order;
+  if (order === undefined) {
+    const r = await db.execute(
+      "SELECT COALESCE(MAX(sort_order), 0) + 10 AS next FROM schedule_items",
+    );
+    order = Number((r.rows[0] as unknown as { next: number }).next);
+  }
+  await db.execute({
+    sql: `INSERT INTO schedule_items (time, activity, sort_order)
+          VALUES (?, ?, ?)`,
+    args: [item.time, item.activity, order],
+  });
+}
+
+export async function updateScheduleItem(
+  id: number,
+  item: Partial<{ time: string; activity: string }>,
+): Promise<void> {
+  const sets: string[] = [];
+  const args: InValue[] = [];
+  if (item.time !== undefined) {
+    sets.push("time = ?");
+    args.push(item.time);
+  }
+  if (item.activity !== undefined) {
+    sets.push("activity = ?");
+    args.push(item.activity);
+  }
+  if (sets.length === 0) return;
+  args.push(id);
+  const db = await getDb();
+  await db.execute({
+    sql: `UPDATE schedule_items SET ${sets.join(", ")} WHERE id = ?`,
+    args,
+  });
+}
+
+export async function deleteScheduleItemById(id: number): Promise<void> {
+  const db = await getDb();
+  await db.execute({
+    sql: "DELETE FROM schedule_items WHERE id = ?",
+    args: [id],
+  });
 }
