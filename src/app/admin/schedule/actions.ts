@@ -40,6 +40,14 @@ export async function deleteScheduleItemAction(formData: FormData) {
   revalidatePath("/admin/schedule");
 }
 
+export async function deleteAllScheduleItemsAction() {
+  await requireAdmin();
+  const { getDb } = await import("@/lib/db");
+  const db = await getDb();
+  await db.execute("DELETE FROM schedule_items");
+  revalidatePath("/admin/schedule");
+}
+
 const DEFAULT_SCHEDULE: Array<{ time: string; activity: string }> = [
   {
     time: "13:00 – 14:00",

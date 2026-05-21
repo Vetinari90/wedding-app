@@ -4,7 +4,8 @@ import { listScheduleItems, type ScheduleItemRow } from "@/lib/db";
 import { logoutAction } from "../login/actions";
 import AdminNav from "../AdminNav";
 import ScheduleTable from "./ScheduleTable";
-import { seedScheduleAction } from "./actions";
+import { seedScheduleAction, deleteAllScheduleItemsAction } from "./actions";
+import DangerWipe from "../DangerWipe";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,16 @@ export default async function SchedulePage() {
         )}
 
         <ScheduleTable items={items} />
+
+        {items.length > 0 && (
+          <div className="mt-10 flex justify-end">
+            <DangerWipe
+              count={items.length}
+              action={deleteAllScheduleItemsAction}
+              label="Vymazat celý harmonogram"
+            />
+          </div>
+        )}
       </section>
     </main>
   );

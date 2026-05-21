@@ -63,6 +63,14 @@ export async function deleteTaskAction(formData: FormData) {
   revalidatePath("/admin/tasks");
 }
 
+export async function deleteAllTasksAction() {
+  await requireAdmin();
+  const { getDb } = await import("@/lib/db");
+  const db = await getDb();
+  await db.execute("DELETE FROM tasks");
+  revalidatePath("/admin/tasks");
+}
+
 export async function cycleTaskStatusAction(formData: FormData) {
   await requireAdmin();
   const id = Number(formData.get("id"));

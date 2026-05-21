@@ -4,7 +4,8 @@ import { listTasks, type TaskRow } from "@/lib/db";
 import { logoutAction } from "../login/actions";
 import AdminNav from "../AdminNav";
 import TaskTable from "./TaskTable";
-import { seedTasksAction } from "./actions";
+import { seedTasksAction, deleteAllTasksAction } from "./actions";
+import DangerWipe from "../DangerWipe";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +107,16 @@ export default async function TasksPage() {
         )}
 
         <TaskTable tasks={tasks} />
+
+        {tasks.length > 0 && (
+          <div className="mt-10 flex justify-end">
+            <DangerWipe
+              count={tasks.length}
+              action={deleteAllTasksAction}
+              label="Vymazat všechny položky"
+            />
+          </div>
+        )}
       </section>
     </main>
   );
