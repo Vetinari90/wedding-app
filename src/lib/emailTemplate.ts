@@ -30,7 +30,7 @@ export function buildConfirmationEmail(
   // Odstavce závislé na zvoleném pobytu — vzájemně se vylučují.
   const fridayParagraph =
     stay === "weekend"
-      ? `Můžeš přijet už v pátek od 10:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`
+      ? `Můžeš přijet už v pátek od 14:00. Můžeš si užít procházku po okolí nebo se zapojit do příprav, budeme rádi za každou pomoc i společnost.`
       : null;
   const saturdayArrivalParagraph =
     stay === "sat_sun" || stay === "one_day"
