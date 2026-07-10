@@ -22,7 +22,7 @@ export default function Home() {
 
           <p>
             Pokud s námi plánujete strávit celý svatební víkend, můžete
-            přijet už v <strong>pátek od 10:00</strong>. Máme zarezervovaný
+            přijet už v <strong>pátek od 14:00</strong>. Máme zarezervovaný
             celý dům jen pro nás, takže si to společně můžeme opravdu užít.
             Budeme rádi za každou pomoc i společnost při přípravách.
           </p>
