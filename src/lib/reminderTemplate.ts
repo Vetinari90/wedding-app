@@ -17,7 +17,7 @@ export function buildReminderEmail(
   guestName: string,
   stay: ReminderStay,
 ): { subject: string; html: string; text: string } {
-  const subject = `Připomínka — svatba za 2 týdny · ${weddingConfig.couple}`;
+  const subject = `Připomínka: svatba za 2 týdny · ${weddingConfig.couple}`;
 
   const headerImg = `${PUBLIC_BASE_URL}/header.png`;
   const footerImg = `${PUBLIC_BASE_URL}/patka.png`;
@@ -28,31 +28,29 @@ export function buildReminderEmail(
   const intro = `Milý/á ${escapeHtml(guestName)},`;
 
   const openingParagraph =
-    `už jen <strong>dva týdny</strong> nás dělí od naší svatby! ` +
-    `Chceme ti pár praktických informací, ať máš vše po ruce.`;
+    `za dva týdny se bereme. ` +
+    `Chceme ti dát pár praktických informací, ať máš vše po ruce.`;
 
   // Klíčová informace — bude ve zvýrazněném rámečku
   const arrivalHighlight = isFriday
-    ? `Náš dům bude připravený <strong>v pátek od 14:00</strong>. ` +
-      `Můžeš přijet <strong>kdykoli po této hodině</strong>. ` +
-      `Dřívější příjezd bohužel není možný — potřebujeme čas na finální přípravu prostor.`
+    ? `Dům otevíráme <strong>v pátek ve 14:00</strong>, přijet můžeš kdykoli po této hodině. ` +
+      `Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`
     : `Obřad začíná <strong>v sobotu ve 14:00</strong>. ` +
-      `Doporučujeme ti dorazit <strong>minimálně hodinu předem</strong> ` +
+      `Doporučujeme ti dorazit <strong>zhruba hodinu předem</strong> ` +
       `(nejpozději do 13:00), ať se vyhneme svatebnímu shonu a máme čas se s tebou v klidu přivítat.`;
 
   const accommodationParagraph = includeAccommodation
     ? isFriday
-      ? `Spaní pro tebe máme zajištěné, včetně <strong>povlečení a ručníků</strong>. Nemusíš nic vozit.`
-      : `Pokud u nás zůstáváš do neděle, spaní máme zajištěné, včetně <strong>povlečení a ručníků</strong>. Nemusíš nic vozit.`
+      ? `Spaní pro tebe máme zajištěné, včetně <strong>povlečení a ručníků</strong>.`
+      : `Pokud u nás zůstáváš do neděle, spaní máme zajištěné, včetně <strong>povlečení a ručníků</strong>.`
     : null;
 
   const sweetParagraph =
-    `Budeme moc rádi, když <strong>přivezeš něco drobného sladkého</strong> — ` +
-    `koláčky, cookies nebo cokoli, co rád/a pečeš. Sejde se toho hodně a rozhodně přijde vhod. 🍪`;
+    `Budeme moc rádi, když přivezeš něco, co rád/a pečeš. Klidně sladké i slané.`;
 
   const dresscodeParagraph =
     `<strong>Dress code:</strong> společenské oblečení ve stylu svatební garden party. ` +
-    `Děkujeme, že ho dodržíš — na společných fotkách pak budeme všichni vypadat krásně.`;
+    `Na společných fotkách pak budeme všichni vypadat krásně.`;
 
   const addressParagraph =
     `<strong>Adresa:</strong> Resort Počepice, Počepice 22. ` +
@@ -61,13 +59,14 @@ export function buildReminderEmail(
 
   const helpParagraph = isFriday
     ? `V pátek se nám bude hodit každá ruka. Pokud budeš mít chuť pomoct s výzdobou nebo přípravami, ` +
-      `budeme moc rádi. Předem děkujeme za každou pomoc i společnost!`
+      `budeme moc rádi. Předem děkujeme za každou pomoc i společnost.`
     : null;
 
-  const closingParagraph =
-    `Ještě jednou ti moc děkujeme, že s námi tento den strávíš. Těšíme se na tebe! 💍`;
+  const closingParagraph = isFriday
+    ? `Ještě jednou ti moc děkujeme, že s námi strávíš celý svatební víkend. Těšíme se na tebe.`
+    : `Ještě jednou ti moc děkujeme, že s námi tento den strávíš. Těšíme se na tebe.`;
 
-  const signoff = `— ${escapeHtml(weddingConfig.couple)}`;
+  const signoff = escapeHtml(weddingConfig.couple);
 
   // Poskládat tělo (bez zvýrazněného rámečku, ten renderujeme zvlášť)
   const bodyParagraphs: string[] = [];
@@ -142,44 +141,46 @@ export function buildReminderEmail(
   const textLines: string[] = [
     `Milý/á ${guestName},`,
     ``,
-    `už jen dva týdny nás dělí od naší svatby! Chceme ti pár praktických informací, ať máš vše po ruce.`,
+    `za dva týdny se bereme. Chceme ti dát pár praktických informací, ať máš vše po ruce.`,
     ``,
   ];
   if (isFriday) {
     textLines.push(
-      `Náš dům bude připravený v pátek od 14:00. Můžeš přijet kdykoli po této hodině. Dřívější příjezd bohužel není možný — potřebujeme čas na finální přípravu prostor.`,
+      `Dům otevíráme v pátek ve 14:00, přijet můžeš kdykoli po této hodině. Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`,
     );
   } else {
     textLines.push(
-      `Obřad začíná v sobotu ve 14:00. Doporučujeme ti dorazit minimálně hodinu předem (nejpozději do 13:00), ať se vyhneme svatebnímu shonu.`,
+      `Obřad začíná v sobotu ve 14:00. Doporučujeme ti dorazit zhruba hodinu předem (nejpozději do 13:00), ať se vyhneme svatebnímu shonu.`,
     );
   }
   textLines.push(``);
   if (accommodationParagraph) {
     textLines.push(
       isFriday
-        ? `Spaní pro tebe máme zajištěné, včetně povlečení a ručníků. Nemusíš nic vozit.`
-        : `Pokud u nás zůstáváš do neděle, spaní máme zajištěné, včetně povlečení a ručníků. Nemusíš nic vozit.`,
+        ? `Spaní pro tebe máme zajištěné, včetně povlečení a ručníků.`
+        : `Pokud u nás zůstáváš do neděle, spaní máme zajištěné, včetně povlečení a ručníků.`,
       ``,
     );
   }
   textLines.push(
-    `Budeme moc rádi, když přivezeš něco drobného sladkého — koláčky, cookies nebo cokoli, co rád/a pečeš.`,
+    `Budeme moc rádi, když přivezeš něco, co rád/a pečeš. Klidně sladké i slané.`,
     ``,
-    `Dress code: společenské oblečení ve stylu svatební garden party. Děkujeme, že ho dodržíš — na společných fotkách pak budeme všichni vypadat krásně.`,
+    `Dress code: společenské oblečení ve stylu svatební garden party. Na společných fotkách pak budeme všichni vypadat krásně.`,
     ``,
     `Adresa: Resort Počepice, Počepice 22. Snadno se sem dostaneš autem, případně autobusem s přestupem v Sedlčanech.`,
     ``,
   );
   if (isFriday) {
     textLines.push(
-      `V pátek se nám bude hodit každá ruka. Pokud budeš mít chuť pomoct s výzdobou nebo přípravami, budeme moc rádi. Předem děkujeme!`,
+      `V pátek se nám bude hodit každá ruka. Pokud budeš mít chuť pomoct s výzdobou nebo přípravami, budeme moc rádi. Předem děkujeme za každou pomoc i společnost.`,
       ``,
     );
   }
   textLines.push(
-    `Ještě jednou ti moc děkujeme, že s námi tento den strávíš. Těšíme se na tebe!`,
-    `— ${weddingConfig.couple}`,
+    isFriday
+      ? `Ještě jednou ti moc děkujeme, že s námi strávíš celý svatební víkend. Těšíme se na tebe.`
+      : `Ještě jednou ti moc děkujeme, že s námi tento den strávíš. Těšíme se na tebe.`,
+    `${weddingConfig.couple}`,
   );
 
   return { subject, html, text: textLines.join("\n") };
