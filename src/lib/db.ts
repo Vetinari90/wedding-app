@@ -88,6 +88,14 @@ async function ensureSchema(c: Client): Promise<void> {
     )
   `);
 
+  // Settings (key-value): schedule for reminder, last-sent timestamps, etc.
+  await c.execute(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
   _initialized = true;
 }
 
