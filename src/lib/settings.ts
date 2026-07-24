@@ -11,8 +11,10 @@ export async function getSetting(key: string): Promise<string | null> {
     sql: "SELECT value FROM settings WHERE key = ?",
     args: [key],
   });
-  const row = res.rows[0] as { value: string | null } | undefined;
-  return row?.value ?? null;
+  const row = res.rows[0];
+  if (!row) return null;
+  const value = (row as unknown as { value: string | null }).value;
+  return value ?? null;
 }
 
 export async function setSetting(
