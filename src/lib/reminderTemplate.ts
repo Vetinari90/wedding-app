@@ -34,7 +34,7 @@ export function buildReminderEmail(
 
   // Klíčová informace — bude ve zvýrazněném rámečku
   const arrivalHighlight = isFriday
-    ? `Dům otevíráme <strong>v pátek ve 14:00</strong>, přijet můžeš kdykoli po této hodině. ` +
+    ? `Dům otevíráme už <strong>v pátek 14. 8. ve 14:00</strong>, přijet můžeš kdykoli po této hodině. ` +
       `Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`
     : `Obřad začíná <strong>v sobotu ve 14:00</strong>. ` +
       `Doporučujeme ti dorazit <strong>zhruba hodinu předem</strong>, ` +
@@ -147,7 +147,7 @@ export function buildReminderEmail(
   ];
   if (isFriday) {
     textLines.push(
-      `Dům otevíráme v pátek ve 14:00, přijet můžeš kdykoli po této hodině. Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`,
+      `Dům otevíráme už v pátek 14. 8. ve 14:00, přijet můžeš kdykoli po této hodině. Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`,
     );
   } else {
     textLines.push(
