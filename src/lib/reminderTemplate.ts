@@ -28,7 +28,8 @@ export function buildReminderEmail(
   const intro = `Milý/á ${escapeHtml(guestName)},`;
 
   const openingParagraph =
-    `za dva týdny proběhne dlouho očekávaná svatba Jitky a Martina. ` +
+    `blíží se dlouho očekávaná svatba Jitky a Martina, ` +
+    `která se uskuteční o víkendu <strong>15. a 16. srpna</strong>. ` +
     `Chceme ti dát pár praktických informací, ať máš vše po ruce.`;
 
   // Klíčová informace — bude ve zvýrazněném rámečku
@@ -141,7 +142,7 @@ export function buildReminderEmail(
   const textLines: string[] = [
     `Milý/á ${guestName},`,
     ``,
-    `za dva týdny proběhne dlouho očekávaná svatba Jitky a Martina. Chceme ti dát pár praktických informací, ať máš vše po ruce.`,
+    `blíží se dlouho očekávaná svatba Jitky a Martina, která se uskuteční o víkendu 15. a 16. srpna. Chceme ti dát pár praktických informací, ať máš vše po ruce.`,
     ``,
   ];
   if (isFriday) {
