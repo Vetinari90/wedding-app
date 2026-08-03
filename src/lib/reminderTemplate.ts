@@ -28,7 +28,7 @@ export function buildReminderEmail(
   const intro = `Milý/á ${escapeHtml(guestName)},`;
 
   const openingParagraph =
-    `za dva týdny se bereme. ` +
+    `za dva týdny proběhne dlouho očekávaná svatba Jitky a Martina. ` +
     `Chceme ti dát pár praktických informací, ať máš vše po ruce.`;
 
   // Klíčová informace — bude ve zvýrazněném rámečku
@@ -36,8 +36,8 @@ export function buildReminderEmail(
     ? `Dům otevíráme <strong>v pátek ve 14:00</strong>, přijet můžeš kdykoli po této hodině. ` +
       `Dřívější příjezd bohužel není možný. Poté se pustíme do finálních příprav.`
     : `Obřad začíná <strong>v sobotu ve 14:00</strong>. ` +
-      `Doporučujeme ti dorazit <strong>zhruba hodinu předem</strong> ` +
-      `(nejpozději do 13:00), ať se vyhneme svatebnímu shonu a máme čas se s tebou v klidu přivítat.`;
+      `Doporučujeme ti dorazit <strong>zhruba hodinu předem</strong>, ` +
+      `ať se vyhneme svatebnímu shonu a máme čas se s tebou v klidu přivítat.`;
 
   const accommodationParagraph = includeAccommodation
     ? isFriday
@@ -141,7 +141,7 @@ export function buildReminderEmail(
   const textLines: string[] = [
     `Milý/á ${guestName},`,
     ``,
-    `za dva týdny se bereme. Chceme ti dát pár praktických informací, ať máš vše po ruce.`,
+    `za dva týdny proběhne dlouho očekávaná svatba Jitky a Martina. Chceme ti dát pár praktických informací, ať máš vše po ruce.`,
     ``,
   ];
   if (isFriday) {
@@ -150,7 +150,7 @@ export function buildReminderEmail(
     );
   } else {
     textLines.push(
-      `Obřad začíná v sobotu ve 14:00. Doporučujeme ti dorazit zhruba hodinu předem (nejpozději do 13:00), ať se vyhneme svatebnímu shonu.`,
+      `Obřad začíná v sobotu ve 14:00. Doporučujeme ti dorazit zhruba hodinu předem, ať se vyhneme svatebnímu shonu.`,
     );
   }
   textLines.push(``);
