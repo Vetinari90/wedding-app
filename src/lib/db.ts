@@ -96,6 +96,17 @@ async function ensureSchema(c: Client): Promise<void> {
     )
   `);
 
+  // Gifts (přijaté dary / příjmy)
+  await c.execute(`
+    CREATE TABLE IF NOT EXISTS gifts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      donor_name TEXT NOT NULL,
+      amount INTEGER NOT NULL DEFAULT 0,
+      note TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
   _initialized = true;
 }
 
@@ -383,4 +394,68 @@ export async function deleteScheduleItemById(id: number): Promise<void> {
     sql: "DELETE FROM schedule_items WHERE id = ?",
     args: [id],
   });
+}
+
+// ============================================
+// GIFTS (Přijaté dary / příjmy)
+// ============================================
+
+export type GiftRow = {
+  id: number;
+  donor_name: string;
+  amount: number;
+  note: string | null;
+  created_at: string;
+};
+
+export async function listGifts(): Promise<GiftRow[]> {
+  const db = await getDb();
+  const res = await db.execute(
+    "SELECT * FROM gifts ORDER BY created_at DESC",
+  );
+  return res.rows as unknown as GiftRow[];
+}
+
+export async function insertGift(g: {
+  donor_name: string;
+  amount?: number;
+  note?: string | null;
+}): Promise<void> {
+  const db = await getDb();
+  await db.execute({
+    sql: `INSERT INTO gifts (donor_name, amount, note) VALUES (?, ?, ?)`,
+    args: [g.donor_name, g.amount ?? 0, g.note ?? null],
+  });
+}
+
+export async function updateGiftFields(
+  id: number,
+  g: Partial<{ donor_name: string; amount: number; note: string | null }>,
+): Promise<void> {
+  const sets: string[] = [];
+  const args: (string | number | null)[] = [];
+  if (g.donor_name !== undefined) {
+    sets.push("donor_name = ?");
+    args.push(g.donor_name);
+  }
+  if (g.amount !== undefined) {
+    sets.push("amount = ?");
+    args.push(g.amount);
+  }
+  if (g.note !== undefined) {
+    sets.push("note = ?");
+    args.push(g.note);
+  }
+  if (sets.length === 0) return;
+  args.push(id);
+  const db = await getDb();
+  await db.execute({
+    sql: `UPDATE gifts SET ${sets.join(", ")} WHERE id = ?`,
+    args,
+  });
+}
+
+export async function deleteGiftById(id: number): Promise<void> {
+  const db = await getDb();
+  await db.execute({ sql: "DELETE FROM gifts WHERE id = ?", args: [id] });
 }
