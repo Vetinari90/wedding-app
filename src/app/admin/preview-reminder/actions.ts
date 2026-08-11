@@ -37,11 +37,25 @@ export async function resetReminderSentMarkerAction() {
 }
 
 /**
- * RUČNÍ odeslání všem hostům — obejde cron i schedule. Volá se
- * pouze z formuláře, který má client-side confirm() dialog.
+ * RUČNÍ odeslání — obejde cron i schedule. Volá se pouze z formuláře,
+ * který má client-side confirm() dialog.
+ *
+ * FormData:
+ *   - mode = "all" | "selected"
+ *   - emails[] = seznam vybraných adres (jen když mode === "selected")
  */
-export async function sendReminderNowAction() {
+export async function sendReminderNowAction(formData: FormData) {
   await requireAdmin();
-  await sendReminderToAll();
+  const mode = String(formData.get("mode") ?? "all");
+  if (mode === "selected") {
+    const emails = formData
+      .getAll("emails")
+      .map((v) => String(v).trim())
+      .filter(Boolean);
+    if (emails.length === 0) return; // safety: nic nevybráno
+    await sendReminderToAll(emails);
+  } else {
+    await sendReminderToAll();
+  }
   revalidatePath("/admin/preview-reminder");
 }

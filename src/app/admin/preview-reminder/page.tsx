@@ -9,7 +9,9 @@ import {
   resetReminderSentMarkerAction,
   sendReminderNowAction,
 } from "./actions";
-import ConfirmButton from "../ConfirmButton";
+import RecipientSelector, {
+  type SelectorGuest,
+} from "./RecipientSelector";
 
 export const dynamic = "force-dynamic";
 
@@ -226,11 +228,14 @@ export default async function PreviewReminderPage({
             </div>
 
             <div className="mt-4">
-              <ConfirmButton
+              <RecipientSelector
+                guests={attendingWithEmail.map<SelectorGuest>((g) => ({
+                  id: g.id,
+                  name: g.name,
+                  email: g.email as string,
+                  stay: g.accommodation_stay,
+                }))}
                 action={sendReminderNowAction}
-                message={`Opravdu odeslat připomínkový email všem ${attendingWithEmail.length} hostům? Tato akce je nevratná a odešle skutečné maily.`}
-                label={`⚠ Odeslat teď všem (${attendingWithEmail.length})`}
-                variant="danger"
               />
             </div>
 

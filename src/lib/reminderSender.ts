@@ -28,12 +28,17 @@ export type SendResult = {
 };
 
 /**
- * Odešle připomínkový email všem "attending" hostům podle jejich
- * accommodation_stay. Idempotentně zapíše last_sent_at do settings po
- * dokončení. Volej pouze ze server actions nebo z /api/cron/reminder —
- * nikdy z běžného request handleru.
+ * Odešle připomínkový email hostům podle `accommodation_stay`.
+ * - Bez `filterEmails` → všem "attending" hostům s vyplněným emailem.
+ * - S `filterEmails` → jen těm hostům, jejichž email je v seznamu.
+ *
+ * Idempotentně zapíše last_sent_at do settings po dokončení. Volej pouze
+ * ze server actions nebo z /api/cron/reminder — nikdy z běžného
+ * request handleru.
  */
-export async function sendReminderToAll(): Promise<SendResult> {
+export async function sendReminderToAll(
+  filterEmails?: string[] | null,
+): Promise<SendResult> {
   const startedAt = new Date().toISOString();
   const resend = getResend();
 
@@ -58,7 +63,16 @@ export async function sendReminderToAll(): Promise<SendResult> {
 
   const from = process.env.EMAIL_FROM || "onboarding@resend.dev";
   const guests = await listRsvp();
-  const attending = guests.filter((g) => g.attending === 1);
+  let attending = guests.filter((g) => g.attending === 1);
+
+  if (filterEmails && filterEmails.length > 0) {
+    const allowed = new Set(
+      filterEmails.map((e) => e.trim().toLowerCase()).filter(Boolean),
+    );
+    attending = attending.filter(
+      (g) => g.email && allowed.has(g.email.toLowerCase()),
+    );
+  }
 
   const perGuest: PerGuestResult[] = [];
 
