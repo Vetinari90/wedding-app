@@ -11,7 +11,7 @@ import {
 } from "./actions";
 import RecipientSelector, {
   type SelectorGuest,
-} from "./RecipientSelector";
+} from "../RecipientSelector";
 
 export const dynamic = "force-dynamic";
 

@@ -8,6 +8,7 @@ const TABS = [
   { href: "/admin/tasks", label: "Co zařídit" },
   { href: "/admin/schedule", label: "Harmonogram" },
   { href: "/admin/preview-reminder", label: "Připomínkový email" },
+  { href: "/admin/thank-you", label: "Děkovný email" },
 ];
 
 export default function AdminNav() {
