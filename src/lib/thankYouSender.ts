@@ -1,6 +1,9 @@
 import { Resend } from "resend";
 import { listRsvp } from "./db";
-import { buildThankYouEmail } from "./thankYouTemplate";
+import {
+  buildThankYouEmail,
+  type ThankYouVariant,
+} from "./thankYouTemplate";
 import { setSetting, SETTING_KEYS } from "./settings";
 import type { SendResult, PerGuestResult } from "./reminderSender";
 
@@ -13,17 +16,37 @@ function getResend(): Resend | null {
   return _resend;
 }
 
+function keysFor(variant: ThankYouVariant): {
+  lastSentAt: string;
+  lastResult: string;
+} {
+  if (variant === "photos") {
+    return {
+      lastSentAt: SETTING_KEYS.photosLastSentAt,
+      lastResult: SETTING_KEYS.photosLastResult,
+    };
+  }
+  return {
+    lastSentAt: SETTING_KEYS.thankYouLastSentAt,
+    lastResult: SETTING_KEYS.thankYouLastResult,
+  };
+}
+
 /**
- * Odešle děkovný email hostům.
- * - Bez `filterEmails` → všem "attending" hostům s vyplněným emailem.
- * - S `filterEmails` → jen těm hostům, jejichž email je v seznamu.
+ * Odešle děkovný / follow-up email hostům.
+ * - variant vybírá šablonu ("thanks" nebo "photos")
+ * - bez `filterEmails` → všem "attending" hostům s vyplněným emailem
+ * - s `filterEmails` → jen těm hostům, jejichž email je v seznamu
  *
- * Volej pouze ze server actions — nikdy z běžného request handleru.
+ * Každá varianta má vlastní zápis do settings (last_sent_at / last_result),
+ * takže se navzájem nepřepisují.
  */
 export async function sendThankYouEmails(
+  variant: ThankYouVariant,
   filterEmails?: string[] | null,
 ): Promise<SendResult> {
   const startedAt = new Date().toISOString();
+  const keys = keysFor(variant);
   const resend = getResend();
 
   if (!resend) {
@@ -41,7 +64,7 @@ export async function sendThankYouEmails(
         },
       ],
     };
-    await setSetting(SETTING_KEYS.thankYouLastResult, JSON.stringify(result));
+    await setSetting(keys.lastResult, JSON.stringify(result));
     return result;
   }
 
@@ -59,7 +82,7 @@ export async function sendThankYouEmails(
   }
 
   // Připrav email jednou — je pro všechny stejný
-  const { subject, html, text } = buildThankYouEmail();
+  const { subject, html, text } = buildThankYouEmail(variant);
 
   const perGuest: PerGuestResult[] = [];
 
@@ -116,11 +139,8 @@ export async function sendThankYouEmails(
     perGuest,
   };
 
-  await setSetting(
-    SETTING_KEYS.thankYouLastSentAt,
-    new Date().toISOString(),
-  );
-  await setSetting(SETTING_KEYS.thankYouLastResult, JSON.stringify(result));
+  await setSetting(keys.lastSentAt, new Date().toISOString());
+  await setSetting(keys.lastResult, JSON.stringify(result));
 
   return result;
 }

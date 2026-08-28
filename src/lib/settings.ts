@@ -44,6 +44,8 @@ export const SETTING_KEYS = {
   reminderSendDate: "reminder_send_date", // ISO YYYY-MM-DD
   reminderLastSentAt: "reminder_last_sent_at", // ISO datetime
   reminderLastResult: "reminder_last_result", // JSON with SendResult
-  thankYouLastSentAt: "thank_you_last_sent_at", // ISO datetime
-  thankYouLastResult: "thank_you_last_result", // JSON with SendResult
+  thankYouLastSentAt: "thank_you_last_sent_at", // ISO datetime (variant: thanks)
+  thankYouLastResult: "thank_you_last_result", // JSON with SendResult (variant: thanks)
+  photosLastSentAt: "photos_last_sent_at", // ISO datetime (variant: photos)
+  photosLastResult: "photos_last_result", // JSON with SendResult (variant: photos)
 } as const;

@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { isAdmin } from "@/lib/auth";
-import { buildThankYouEmail } from "@/lib/thankYouTemplate";
+import {
+  buildThankYouEmail,
+  VARIANT_META,
+  type ThankYouVariant,
+} from "@/lib/thankYouTemplate";
 import { getSetting, SETTING_KEYS } from "@/lib/settings";
 import { listRsvp } from "@/lib/db";
 import { sendThankYouNowAction } from "./actions";
@@ -27,12 +31,33 @@ function formatCzechDate(iso: string | null | undefined): string {
   }
 }
 
-export default async function ThankYouPage() {
+function parseVariant(v: string | undefined): ThankYouVariant {
+  return v === "photos" ? "photos" : "thanks";
+}
+
+export default async function ThankYouPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ variant?: string }>;
+}) {
   if (!(await isAdmin())) redirect("/admin/login");
 
+  const params = await searchParams;
+  const variant = parseVariant(params.variant);
+
+  // Klíče pro aktuální variantu
+  const lastSentKey =
+    variant === "photos"
+      ? SETTING_KEYS.photosLastSentAt
+      : SETTING_KEYS.thankYouLastSentAt;
+  const lastResultKey =
+    variant === "photos"
+      ? SETTING_KEYS.photosLastResult
+      : SETTING_KEYS.thankYouLastResult;
+
   const [lastSentAt, lastResultJson, guests] = await Promise.all([
-    getSetting(SETTING_KEYS.thankYouLastSentAt),
-    getSetting(SETTING_KEYS.thankYouLastResult),
+    getSetting(lastSentKey),
+    getSetting(lastResultKey),
     listRsvp(),
   ]);
 
@@ -58,7 +83,11 @@ export default async function ThankYouPage() {
     }
   }
 
-  const { subject, html, text } = buildThankYouEmail();
+  const { subject, html, text } = buildThankYouEmail(variant);
+  const meta = VARIANT_META[variant];
+
+  // Server action s předvyplněnou variantou
+  const boundAction = sendThankYouNowAction.bind(null, variant);
 
   return (
     <main className="min-h-screen bg-wedding-cream">
@@ -83,13 +112,29 @@ export default async function ThankYouPage() {
       </header>
 
       <section className="mx-auto max-w-6xl space-y-6 px-4 py-6">
+        {/* ===== Variant tabs ===== */}
+        <div className="flex gap-1 border-b border-wedding-ink/15">
+          <VariantTab
+            href="/admin/thank-you"
+            label={VARIANT_META.thanks.title}
+            active={variant === "thanks"}
+          />
+          <VariantTab
+            href="/admin/thank-you?variant=photos"
+            label={VARIANT_META.photos.title}
+            active={variant === "photos"}
+          />
+        </div>
+
+        <p className="text-xs text-wedding-ink/70">{meta.description}</p>
+
         {/* ===== Manual send ===== */}
         <div className="rounded-xl bg-white p-5 shadow-sm">
           <h2 className="font-serif text-lg text-wedding-ink">
-            Ruční odeslání
+            Ruční odeslání ({meta.title})
           </h2>
           <p className="mt-1 text-xs text-wedding-ink/60">
-            Odešle poděkování všem nebo jen vybraným hostům. Vyžaduje
+            Odešle vybranou šablonu všem nebo jen vybraným hostům. Vyžaduje
             potvrzení.
           </p>
 
@@ -106,7 +151,7 @@ export default async function ThankYouPage() {
               </div>
             )}
             <div className="text-xs text-wedding-ink/60">
-              Poslední odeslání:{" "}
+              Poslední odeslání této šablony:{" "}
               <strong>{formatCzechDate(lastSentAt)}</strong>
             </div>
           </div>
@@ -119,7 +164,7 @@ export default async function ThankYouPage() {
                 email: g.email as string,
                 stay: g.accommodation_stay,
               }))}
-              action={sendThankYouNowAction}
+              action={boundAction}
             />
           </div>
 
@@ -159,7 +204,7 @@ export default async function ThankYouPage() {
         <div className="space-y-2">
           <div className="rounded-xl bg-white p-4 shadow-sm">
             <h2 className="font-serif text-lg text-wedding-ink">
-              Náhled zprávy
+              Náhled zprávy ({meta.title})
             </h2>
             <p className="mt-2 text-xs">
               <strong>Předmět:</strong>{" "}
@@ -172,7 +217,7 @@ export default async function ThankYouPage() {
           </div>
           <iframe
             srcDoc={html}
-            title="Náhled děkovného emailu"
+            title={`Náhled — ${meta.title}`}
             className="h-[820px] w-full rounded-xl border border-wedding-ink/10 bg-white shadow-sm"
           />
           <details className="rounded-xl bg-white p-4 shadow-sm">
@@ -186,5 +231,26 @@ export default async function ThankYouPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+function VariantTab({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
+  const base =
+    "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition inline-flex items-center gap-2";
+  const activeCls = active
+    ? "border-wedding-sage text-wedding-ink"
+    : "border-transparent text-wedding-ink/50 hover:text-wedding-ink";
+  return (
+    <Link href={href} className={`${base} ${activeCls}`}>
+      {label}
+    </Link>
   );
 }
